@@ -1,1 +1,12 @@
-grpcio-tools
+asyncio
+google-genai
+grpcio==1.74.0
+grpcio-tools==1.74.0
+grpcio-reflection
+logging
+matplotlib
+numpy
+cupy
+scikit-learn
+shapely
+supabase

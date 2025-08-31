@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package vigil;
+
+import "google/protobuf/timestamp.proto";
+
+import "location.proto";
+
+message HeatmapPoint {
+    Location location  = 1;
+    float    intensity = 2;
+    float    radius    = 3;
+}
+
+message GeneratedHeatmap {
+    int32                     id         = 1;
+    google.protobuf.Timestamp created_at = 2;
+    repeated HeatmapPoint     points     = 3;
+}

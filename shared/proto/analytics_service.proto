@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package vigil;
+
+import "heatmap.proto";
+
+service AnalyticsService {
+    rpc InferSymptomsAndCause(InferSymptomsAndCauseRequest) returns (InferSymptomsAndCauseResponse) {}
+    rpc CalculateReading(CalculateReadingRequest) returns (CalculateReadingResponse) {}
+    rpc FetchHeatmap(FetchHeatmapRequest) returns (FetchHeatmapResponse) {}
+}
+
+message InferSymptomsAndCauseRequest {
+    string text = 1;
+}
+
+message InferSymptomsAndCauseResponse {
+    map<string, int32> symptoms = 1; // Symptom -> severity
+    string             cause    = 2; // The most probable cause/disease.
+    bool               success  = 3; // Whether the inference was successful.
+}
+
+message CalculateReadingRequest {
+    int64           time       = 1; // How recent the data must be (in hours).
+    optional string similarity = 2; // The similarity might be a common symptom or cause. If null, calculates the general incidence of symptoms.
+}
+
+message CalculateReadingResponse {
+    bool success = 1;
+}
+
+message FetchHeatmapRequest {
+    optional int64  time       = 1; // How recent the data must be (in hours). If null, fetches the most recent clustering.
+    optional string similarity = 2; // The similarity might be a common symptom or disease. If null, fetches the general incidence of symptoms.
+}
+
+message FetchHeatmapResponse {
+    repeated GeneratedHeatmap heatmapPoints = 1;
+}

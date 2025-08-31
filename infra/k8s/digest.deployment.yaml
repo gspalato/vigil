@@ -13,12 +13,12 @@ spec:
         app: digest-service
     spec:
       containers:
-      - name: digest-service
-        image: unreaalism/vigil-digest:latest
-        ports:
-        - containerPort: 3000
-        #envFrom:
-        #- secretRef:
-        #    name: digest-secrets
-        #- configMapRef:
-        #    name: digest-config
+        - name: digest-service
+          image: unreaalism/vigil-digest:latest
+          ports:
+            - containerPort: 50051
+          #envFrom:
+          #- secretRef:
+          #    name: digest-secrets
+          #- configMapRef:
+          #    name: digest-config

@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package vigil;
+
+message Location {
+    double lat = 1;
+    double lon = 2;
+}

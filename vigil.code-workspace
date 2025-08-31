@@ -1,0 +1,28 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "apps/mobile",
+			"path": "apps/mobile"
+		},
+		{
+			"name": "apps/web",
+			"path": "apps/web"
+		},
+		{
+			"name": "services/analytics",
+			"path": "services/analytics"
+		},
+		{
+			"name": "services/digest",
+			"path": "services/digest"
+		},
+		{
+			"name": "services/gateway",
+			"path": "services/gateway"
+		}
+	],
+	"settings": {}
+}

@@ -17,8 +17,8 @@ spec:
         image: unreaalism/vigil-gateway:latest
         ports:
         - containerPort: 3000
-        #envFrom:
-        #- secretRef:
-        #    name: gateway-secrets
+        envFrom:
+        - secretRef:
+            name: gateway-secrets
         #- configMapRef:
         #    name: gateway-config

@@ -17,8 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code
 COPY . .
 
-# Expose port (example: 3000)
-EXPOSE 3000
+# Expose gRPC port
+EXPOSE 50051
 
 # Run the service
-CMD ["python", "main.py"]
+CMD ["python", "src/__main__.py"]

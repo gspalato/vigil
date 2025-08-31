@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package vigil;
+
+import "location.proto";
+
+message Cluster {
+    int32                     cluster_id = 1;
+    repeated Location         points     = 2;
+}

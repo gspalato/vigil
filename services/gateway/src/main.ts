@@ -25,6 +25,8 @@ app.get('/api/users/@me', requireAuth(), async (req, res) => {
 
   const user = await clerkClient.users.getUser(userId)
   res.send({ user });
+
+  return;
 });
 
 app.get('/api/report', requireAuth(), async (req, res) => {
@@ -33,5 +35,20 @@ app.get('/api/report', requireAuth(), async (req, res) => {
     return res.status(401).send({ 'message': 'Unauthorized' });
   }
 
-  const user = await clerkClient.users.getUser(userId)
+  const user = await clerkClient.users.getUser(userId);
+
+  return;
+});
+
+app.get('/api/heatmap', requireAuth(), async (req, res) => {
+  const { userId } = getAuth(req)
+  if (!userId) {
+    return res.status(401).send({ 'message': 'Unauthorized' });
+  }
+
+  // Fetch heatmap based on query.
+  const time = req.query.time;
+  const similarity = req.query.similarity;
+
+  return;
 });

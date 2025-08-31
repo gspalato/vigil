@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package vigil;
+
+import "google/protobuf/timestamp.proto";
+
+import "cluster.proto";
+import "heatmap.proto";
+
+message Reading {
+    int32                     id             = 1;
+    google.protobuf.Timestamp created_at     = 2;
+    repeated Cluster          clusters       = 3;
+    repeated string           similarity     = 4;
+    repeated HeatmapPoint     heatmap_points = 5;
+    int32                     time           = 6;
+}

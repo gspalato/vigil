@@ -7,10 +7,12 @@
     "docker:build": "sudo docker build -t unreaalism/vigil-gateway ."
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^2.7.0",
     "@clerk/express": "^1.7.26",
     "@grpc/grpc-js": "^1.13.4",
     "dotenv": "^17.2.1",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "supabase": "^2.39.2"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",

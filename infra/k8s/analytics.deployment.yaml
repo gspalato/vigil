@@ -13,12 +13,12 @@ spec:
         app: analytics-service
     spec:
       containers:
-      - name: analytics-service
-        image: unreaalism/vigil-analytics:latest
-        ports:
-        - containerPort: 3000
-        #envFrom:
-        #- secretRef:
-        #    name: analytics-secrets
-        #- configMapRef:
-        #    name: analytics-config
+        - name: analytics-service
+          image: unreaalism/vigil-analytics:latest
+          ports:
+            - containerPort: 50051
+          envFrom:
+            - secretRef:
+                name: analytics-secrets
+          #- configMapRef:
+          #    name: analytics-config
