@@ -3,6 +3,7 @@ syntax = "proto3";
 package vigil;
 
 import "heatmap.proto";
+import "reading.proto";
 
 service AnalyticsService {
     rpc InferSymptomsAndCause(InferSymptomsAndCauseRequest) returns (InferSymptomsAndCauseResponse) {}
@@ -26,12 +27,14 @@ message CalculateReadingRequest {
 }
 
 message CalculateReadingResponse {
-    bool success = 1;
+    bool             success = 1;
+    optional Reading reading = 2;
+    optional string  error   = 3;
 }
 
 message FetchHeatmapRequest {
     optional int64  time       = 1; // How recent the data must be (in hours). If null, fetches the most recent clustering.
-    optional string similarity = 2; // The similarity might be a common symptom or disease. If null, fetches the general incidence of symptoms.
+    repeated string similarity = 2; // The similarity might be a common symptom or disease. If null, fetches the general incidence of symptoms.
 }
 
 message FetchHeatmapResponse {

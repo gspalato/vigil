@@ -1,5 +1,8 @@
+# Imports
+load('ext://helm_resource', 'helm_resource', 'helm_repo')
+
 # Generate protos.
-local_resource('protogen', 'make all', deps=['proto'])
+local_resource('_protogen', 'make all', deps=['proto'])
 
 # Build service images.
 
@@ -46,4 +49,12 @@ k8s_resource(
   port_forwards=50051
 )
 
-local_resource('clean', 'docker system prune -a -f')
+# Deploy metrics-server
+helm_resource('metrics-server', 'metrics-server/metrics-server')
+
+# Deploy Headlamp as a dashboard
+helm_resource('headlamp', 'headlamp/headlamp')
+k8s_resource(workload='headlamp', port_forwards='8080:4466')
+
+# Clean volumes and system data so that my PC doesn't run out of space.
+local_resource('_clean', 'docker system prune -a -f && docker volume prune -a -f')

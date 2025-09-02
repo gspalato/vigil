@@ -6,7 +6,8 @@ grpcio-reflection
 logging
 matplotlib
 numpy
-cupy
+pandas
+plotly
 scikit-learn
 shapely
 supabase

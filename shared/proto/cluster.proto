@@ -5,6 +5,10 @@ package vigil;
 import "location.proto";
 
 message Cluster {
-    int32                     cluster_id = 1;
-    repeated Location         points     = 2;
+    string            cluster_id = 1; // UUID
+    repeated Location points     = 2;
+    Location          centroid   = 3;
+    float             radius     = 4; // In meters
+    float             density    = 5; // In meters
+    bool              is_noise   = 6;
 }

@@ -1,14 +1,22 @@
+import hashlib
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+
 import random
 import uuid
 from datetime import datetime, timedelta
 import json
+import math
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
 
 import clusters
 import heatmap
 
-from generated import symptom_report_pb2
+from generated import cluster_pb2, symptom_report_pb2
 
 SYMPTOMS = ["fever", "cough", "headache", "nausea", "fatigue"]
 REGIONS = [
@@ -66,23 +74,24 @@ def generate_reports_at(n_reports=100, city_lat=-23.351, city_lon=-47.849, clust
 
     return reports
 
-def plot_clusters_points(clusters):
+def plot_clusters_points(clusters: list[cluster_pb2.Cluster]):
     plt.figure(figsize=(8, 6))
     colors = plt.cm.tab20.colors  # Up to 20 distinct colors
 
     for cluster in clusters:
-        cluster_id = cluster["cluster_id"]
-        points = cluster["points"]
-        coords = np.array([[r['lat'], r['lon']] for r in points])
+        cluster_id = cluster.cluster_id
+        is_noise = cluster.is_noise
+        points = cluster.points
+        coords = np.array([[r.lat, r.lon] for r in points])
 
         # Pick a color (cycling if more than 20 clusters)
-        color = colors[cluster_id % len(colors)] if cluster_id != -1 else (0, 0, 0)
+        color = colors[int(hashlib.sha1(cluster_id.encode()).hexdigest(), 16) % len(colors)] if not is_noise else (0, 0, 0)
 
         plt.scatter(coords[:, 1], coords[:, 0],  # lon=x, lat=y
                     c=[color],
-                    label=f"Cluster {cluster_id}" if cluster_id != -1 else "Noise",
+                    label=f"Cluster {cluster_id}" if not is_noise else "Noise",
                     s=50,
-                    alpha=1 if cluster_id != -1 else 0.2,
+                    alpha=1 if not is_noise else 0.2,
                     edgecolor='k')
 
     plt.xlim(-180, 180)
@@ -93,6 +102,79 @@ def plot_clusters_points(clusters):
     plt.legend()
     plt.title("Clusters")
     plt.show()
+
+def uuid_to_color(u: str) -> str:
+    h = hashlib.sha256(u.encode()).digest()
+    return f"#{h[0]:02x}{h[1]:02x}{h[2]:02x}"
+
+def plot_clusters(clusters: list[cluster_pb2.Cluster], show_radius=True):
+    all_points = []
+    circles = []
+
+    for c in clusters:
+        color = uuid_to_color(c.cluster_id) if not c.is_noise else "#000000"
+
+        # Flatten points
+        for p in c.points:
+            all_points.append({
+                "lat": p.lat,
+                "lon": p.lon,
+                "cluster_id": c.cluster_id,
+                "density": float(c.density),
+                "is_noise": c.is_noise,
+                "color": color
+            })
+
+        # Optional radius circle
+        if show_radius and c.radius > 0 and not c.is_noise:
+            lat0, lon0 = c.centroid.lat, c.centroid.lon
+            r_m = c.radius
+            circle_lats, circle_lons = [], []
+            for theta in [i*2*math.pi/50 for i in range(51)]:
+                # convert meters to degrees
+                dlat = r_m / 111000 * math.cos(theta)
+                dlon = r_m / (111000 * math.cos(math.radians(lat0))) * math.sin(theta)
+                circle_lats.append(lat0 + dlat)
+                circle_lons.append(lon0 + dlon)
+            circles.append({"lat": circle_lats, "lon": circle_lons, "color": color})
+
+    df = pd.DataFrame(all_points)
+
+    fig = go.Figure()
+
+    # Scatter points
+    fig.add_trace(go.Scatter(
+        x=df["lon"], y=df["lat"],
+        mode="markers",
+        marker=dict(
+            color=df["color"],
+            size=[8 if not noise else 4 for noise in df["is_noise"]],
+            opacity=[0.1 if noise else 1.0 for noise in df["is_noise"]]
+        ),
+        hovertemplate="<b>Cluster:</b> %{customdata[0]}<br>"
+                      "<b>Density:</b> %{customdata[1]:.2f}<br>"
+                      "<b>Noise:</b> %{customdata[2]}<extra></extra>",
+        customdata=df[["cluster_id", "density", "is_noise"]].values
+    ))
+
+    # Radius circles
+    for c in circles:
+        fig.add_trace(go.Scatter(
+            x=c["lon"], y=c["lat"],
+            mode="lines",
+            line=dict(color=c["color"], width=1),
+            hoverinfo="skip"
+        ))
+
+    fig.update_layout(
+        xaxis_title="Longitude",
+        yaxis_title="Latitude",
+        showlegend=False,
+        #width=800,
+        #height=600
+    )
+    fig.show()
+
 
 if __name__ == "__main__":
     REGIONS = [
@@ -111,9 +193,8 @@ if __name__ == "__main__":
         reports.extend(generate_reports(n=50, days_back=10))
 
     cl = clusters.calculate_clusters(reports)
-    print("Cluster labels:")
-    print(*cl)
+    plot_clusters(cl)
 
-    plot_clusters_points(cl)
+    print(*cl)
 
     input()

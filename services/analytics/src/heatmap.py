@@ -5,7 +5,7 @@ from scipy.spatial import ConvexHull
 
 from generated import heatmap_pb2, location_pb2
 
-def generate_heatmap_points_for_cluster(cluster_points, max_points=10) -> list[heatmap_pb2.HeatmapPoint]:
+def generate_heatmap_points_for_cluster(cluster_points: location_pb2.Location, max_points=10) -> list[heatmap_pb2.HeatmapPoint]:
     """
     Generate a small number of heatmap points that approximate the shape of the cluster,
     with automatically calculated intensity and radius.
@@ -17,8 +17,8 @@ def generate_heatmap_points_for_cluster(cluster_points, max_points=10) -> list[h
         List of dicts: { location: {lat, lon}, intensity, radius }
     """
     n_reports = len(cluster_points)
-    points = np.array([[r['lat'], r['lon']] for r in cluster_points])
-    
+    points = np.array([[r.lat, r.lon] for r in cluster_points])
+
     # Compute cluster extent
     lat_min, lon_min = points.min(axis=0)
     lat_max, lon_max = points.max(axis=0)
@@ -44,8 +44,8 @@ def generate_heatmap_points_for_cluster(cluster_points, max_points=10) -> list[h
     for _ in range(min(max_points, n_reports)):
         # Pick a random report as a center
         r = random.choice(cluster_points)
-        lat = r['lat']
-        lon = r['lon']
+        lat = r.lat
+        lon = r.lon
 
         # Small random offset to approximate shape
         lat_offset = random.uniform(-lat_range * 0.2, lat_range * 0.2)

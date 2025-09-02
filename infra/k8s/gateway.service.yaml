@@ -6,7 +6,7 @@ spec:
   selector:
     app: gateway-service
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 3000
-  type: ClusterIP
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: LoadBalancer

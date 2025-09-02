@@ -3,6 +3,7 @@ node_modules/
 
 */**/*.secrets.yaml
 services/*/**/generated
+*/**/__pycache__/
 
 # Expo
 node_modules/

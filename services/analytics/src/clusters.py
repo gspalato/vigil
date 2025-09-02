@@ -1,8 +1,12 @@
+import logging
 import numpy as np
 from sklearn import metrics
 from sklearn.cluster import DBSCAN
 from google.protobuf.json_format import ParseDict
 from collections import defaultdict
+import uuid
+
+import calcs
 
 from generated import cluster_pb2, location_pb2
 
@@ -21,14 +25,14 @@ def calculate_clusters(reports: list) -> list[cluster_pb2.Cluster]:
 
     dbscan = DBSCAN(eps=eps_rad, min_samples=3, metric="haversine").fit(coords_rad)
     labels = dbscan.labels_
-    print(labels)
+    logging.debug(labels)
 
     # Number of clusters in labels, ignoring noise if present.
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
     n_noise_ = list(labels).count(-1)
 
-    print("Estimated number of clusters: %d" % n_clusters_)
-    print("Estimated number of noise points: %d" % n_noise_)
+    logging.debug("Estimated number of clusters: %d" % n_clusters_)
+    logging.debug("Estimated number of noise points: %d" % n_noise_)
 
     # Group reports by cluster
     clusters_dict = defaultdict(list)
@@ -36,11 +40,25 @@ def calculate_clusters(reports: list) -> list[cluster_pb2.Cluster]:
         clusters_dict[label].append(report)
     
     # Convert to list of dicts
-    clusters = [
-        cluster_pb2.Cluster(
-            cluster_id=cid,
-            points=[location_pb2.Location(lat=rl['lat'], lon=rl['lon']) for rl in rls]
-        ) for cid, rls in clusters_dict.items()
-    ]
+    clusters: list[cluster_pb2.Cluster] = []
+    for cid, rls in clusters_dict.items():
+        points = [location_pb2.Location(lat=rl['lat'], lon=rl['lon']) for rl in rls]
+        (radius, (centroid_lat, centroid_lon)) = calcs.cluster_radius_max(points)
+        density = calcs.cluster_density(len(rls), radius)
+        centroid = location_pb2.Location(
+            lat=centroid_lat,
+            lon=centroid_lon
+        )
+
+        clusters.append(
+            cluster_pb2.Cluster(
+                cluster_id=str(uuid.uuid4()),
+                points=points,
+                centroid=centroid,
+                radius=radius,
+                density=density,
+                is_noise=(cid == -1)
+            )
+        )
 
     return clusters
