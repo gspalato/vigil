@@ -1,4 +1,5 @@
 import logging
+import statistics
 import numpy as np
 from sklearn import metrics
 from sklearn.cluster import DBSCAN
@@ -43,11 +44,16 @@ def calculate_clusters(reports: list) -> list[cluster_pb2.Cluster]:
     clusters: list[cluster_pb2.Cluster] = []
     for cid, rls in clusters_dict.items():
         points = [location_pb2.Location(lat=rl['lat'], lon=rl['lon']) for rl in rls]
-        (radius, (centroid_lat, centroid_lon)) = calcs.cluster_radius_max(points)
-        density = calcs.cluster_density(len(rls), radius)
+
+        try:
+            area, centroid = calcs.cluster_area(points)
+        except Exception as e:
+            continue
+        
+        density = len(rls) / area
         centroid = location_pb2.Location(
-            lat=centroid_lat,
-            lon=centroid_lon
+            lat=centroid.lat,
+            lon=centroid.lon
         )
 
         clusters.append(
@@ -55,10 +61,34 @@ def calculate_clusters(reports: list) -> list[cluster_pb2.Cluster]:
                 cluster_id=str(uuid.uuid4()),
                 points=points,
                 centroid=centroid,
-                radius=radius,
+                area=area,
                 density=density,
                 is_noise=(cid == -1)
             )
         )
 
     return clusters
+
+def filter_clusters_by_relative_density(clusters: list[cluster_pb2.Cluster]) -> list[cluster_pb2.Cluster]:
+    """
+    Keep clusters with density >= median + 1σ.
+    :param clusters: list of clusters, each is a list of (lat, lon)
+    :return: list of (points, area_km2, centroid, density)
+    """
+    from statistics import median, pstdev
+    
+    cluster_stats = []
+    densities = []
+
+    for cl in clusters:
+        cluster_stats.append(cl)
+        densities.append(cl.density)
+
+    if not densities:
+        return []
+
+    median_density = median(densities)
+    std_density = pstdev(densities)  # Standard deviation by population
+    cutoff = median_density + std_density
+
+    return [c for c in cluster_stats if c.density >= cutoff]

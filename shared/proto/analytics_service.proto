@@ -22,7 +22,7 @@ message InferSymptomsAndCauseResponse {
 }
 
 message CalculateReadingRequest {
-    int64           time       = 1; // How recent the data must be (in hours).
+    ReadingTimespan timespan   = 1; // How recent the data must be (in hours).
     optional string similarity = 2; // The similarity might be a common symptom or cause. If null, calculates the general incidence of symptoms.
 }
 
@@ -33,8 +33,8 @@ message CalculateReadingResponse {
 }
 
 message FetchHeatmapRequest {
-    optional int64  time       = 1; // How recent the data must be (in hours). If null, fetches the most recent clustering.
-    repeated string similarity = 2; // The similarity might be a common symptom or disease. If null, fetches the general incidence of symptoms.
+    optional ReadingTimespan timespan = 1; // How recent the data must be (in hours). If null, fetches the most recent clustering.
+    repeated string          similarity = 2; // The similarity might be a common symptom or disease. If null, fetches the general incidence of symptoms.
 }
 
 message FetchHeatmapResponse {

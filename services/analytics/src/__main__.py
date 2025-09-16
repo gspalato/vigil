@@ -33,11 +33,10 @@ class AnalyticsService(analytics_service_pb2_grpc.AnalyticsService):
         request: analytics_service_pb2.CalculateReadingRequest,
         context: grpc.aio.ServicerContext,
     ) -> analytics_service_pb2.CalculateReadingResponse:
-        # Fetch reports
-        time = request.time
+        timespan = request.timespan
         similarity = request.similarity if isinstance(request.similarity, str) or (isinstance(request.similarity, list) and len(request.similarity) > 0) else None
 
-        reports = await db.fetch_reports(time=time, similarity=similarity)
+        reports, (range_from, range_to) = await db.fetch_reports(timespan=timespan, similarity=similarity)
 
         if len(reports) == 0:
             logging.debug("No reports found matching query.")
@@ -48,14 +47,16 @@ class AnalyticsService(analytics_service_pb2_grpc.AnalyticsService):
         cls: list[cluster_pb2.Cluster] = clusters.calculate_clusters(reports)
         heatmap_points: list[heatmap_pb2.HeatmapPoint] = []
         for cluster in cls:
-            heatmap_points += heatmap.generate_heatmap_points_for_cluster(cluster.points)
+            heatmap_points += heatmap.generate_heatmap_points_for_cluster(cluster)
 
         reading = reading_pb2.Reading(
             created_at=datetime.now(timezone.utc),
             heatmap_points=heatmap_points,
             clusters=cls,
-            time=time,
-            similarity=similarity
+            similarity=similarity,
+            range_from=range_from,
+            range_to=range_to,
+            timespan=timespan
         )
 
         # Push reading to database.

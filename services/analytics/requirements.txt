@@ -8,6 +8,7 @@ matplotlib
 numpy
 pandas
 plotly
+pyproj
 scikit-learn
 shapely
 supabase

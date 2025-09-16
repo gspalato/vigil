@@ -5,6 +5,7 @@ import { clerkClient, clerkMiddleware, getAuth, requireAuth } from '@clerk/expre
 import { AnalyticsServiceClient } from './clients';
 
 import * as AnalyticsService from './generated/analytics_service';
+import { ReadingTimespan } from './generated/reading';
 
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -50,8 +51,28 @@ app.get('/api/heatmap', /*requireAuth(),*/ async (req, res) => {
   //  return res.status(401).send({ 'message': 'Unauthorized' });
   //}
 
+  if (typeof req.query.timespan !== 'string' && req.query.timespan !== undefined) {
+    return res.status(400).send({ 'message': 'Invalid timespan' });
+  }
+
   // Fetch heatmap based on query.
-  const time = Number.isNaN(Number(req.query.time)) ? undefined : Number(req.query.time);
+  let timespan: ReadingTimespan;
+  switch (req.query.timespan?.toLowerCase()) {
+    case "hour":
+      timespan = ReadingTimespan.HOUR;
+      break;
+    case "day":
+      timespan = ReadingTimespan.DAY;
+      break;
+    case "week":
+      timespan = ReadingTimespan.WEEK;
+      break;
+    case "month":
+      timespan = ReadingTimespan.MONTH;
+      break;
+    default:
+      return res.status(400).send({ 'message': 'Invalid timespan' });
+  }
 
   let similarity: string[] = [];
   if (req.query.similarity) {
@@ -65,7 +86,7 @@ app.get('/api/heatmap', /*requireAuth(),*/ async (req, res) => {
 
   const fetchRes = await AnalyticsServiceClient.FetchHeatmap(
     AnalyticsService.FetchHeatmapRequest.create({
-      time: time,
+      timespan: timespan,
       similarity: similarity
     })
   );

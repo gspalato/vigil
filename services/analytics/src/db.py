@@ -17,11 +17,25 @@ async def create_client() -> AsyncClient:
         client = await acreate_client(url, key)
     return client
 
-async def fetch_reports(time: int, similarity: str | list[str] | None) -> list:
+async def fetch_reports(timespan: reading_pb2.ReadingTimespan | None, similarity: str | list[str] | None) -> tuple[list, tuple[datetime, datetime]]:
     # Fetch reports from the database.
     # If no time is specified, filter for timestamps within 24h. Else, filter timestamps within the specified number of hours.
-    time = time if time else 24
-    time_threshold = datetime.now(timezone.utc) - timedelta(hours=time)
+    if timespan is None:
+        timespan = reading_pb2.ReadingTimespan.DAY
+    time_diff = None
+    match timespan:
+        case reading_pb2.ReadingTimespan.HOUR:
+            time_diff = timedelta(hours=1)
+        case reading_pb2.ReadingTimespan.DAY:
+            time_diff = timedelta(days=1)
+        case reading_pb2.ReadingTimespan.WEEK:
+            time_diff = timedelta(weeks=1)
+        case reading_pb2.ReadingTimespan.MONTH:
+            time_diff = timedelta(days=30)
+
+    now = datetime.now(timezone.utc)
+
+    time_threshold = now - time_diff
 
     query = client.table("reports").select("*")
     query = query.gte("timestamp", time_threshold.isoformat())
@@ -50,12 +64,12 @@ async def fetch_reports(time: int, similarity: str | list[str] | None) -> list:
 
         logging.debug("Found %d reports" % len(reports))
 
-        return reports
+        return reports, (time_threshold, now)
     except Exception as e:
         logging.error("Error fetching reports:", e)
-        return []
+        return [], (None, None)
 
-async def fetch_heatmap(time: float | None, similarity: list[str] | None) -> list[heatmap_pb2.HeatmapPoint]:
+async def fetch_heatmap(timespan: reading_pb2.ReadingTimespan | None, similarity: list[str] | None) -> list[heatmap_pb2.HeatmapPoint]:
     """
         Fetch heatmap data from the database.
         If no time is defined, fetch the data from the most recent reading.
@@ -63,9 +77,8 @@ async def fetch_heatmap(time: float | None, similarity: list[str] | None) -> lis
 
     query = client.table("readings").select("*")
 
-    if time is not None:
-        time_threshold = datetime.now(timezone.utc) - timedelta(hours=time)
-        query = query.gte("created_at", time_threshold.isoformat())
+    if timespan is not None:
+        query = query.eq("timespan", reading_pb2.ReadingTimespan.Name(timespan))
 
     if similarity:
         json_array = json.dumps(similarity)

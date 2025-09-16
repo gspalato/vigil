@@ -1,9 +1,9 @@
 node_modules/
+__pycache__/
 *.env
 
 */**/*.secrets.yaml
 services/*/**/generated
-*/**/__pycache__/
 
 # Expo
 node_modules/

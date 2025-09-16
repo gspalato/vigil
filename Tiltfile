@@ -33,8 +33,11 @@ k8s_yaml([
     'infra/k8s/digest.service.yaml',
     'infra/k8s/gateway.service.yaml',
 
+    'infra/k8s/ngrok.ingress.yaml',
+
     'infra/k8s/analytics.secrets.yaml',
-    'infra/k8s/gateway.secrets.yaml'
+    'infra/k8s/gateway.secrets.yaml',
+    'infra/k8s/ngrok.secrets.yaml'
 ])
 
 # Connect gateway to container port 3000
@@ -55,6 +58,9 @@ helm_resource('metrics-server', 'metrics-server/metrics-server')
 # Deploy Headlamp as a dashboard
 helm_resource('headlamp', 'headlamp/headlamp')
 k8s_resource(workload='headlamp', port_forwards='8080:4466')
+
+# Deploy ngrok
+helm_resource('ngrok', 'ngrok/ngrok-operator')
 
 # Clean volumes and system data so that my PC doesn't run out of space.
 local_resource('_clean', 'docker system prune -a -f && docker volume prune -a -f')

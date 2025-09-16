@@ -8,7 +8,7 @@ message Cluster {
     string            cluster_id = 1; // UUID
     repeated Location points     = 2;
     Location          centroid   = 3;
-    float             radius     = 4; // In meters
-    float             density    = 5; // In meters
+    float             area       = 4; // In square kilometers
+    float             density    = 5;
     bool              is_noise   = 6;
 }

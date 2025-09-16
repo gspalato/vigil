@@ -107,15 +107,38 @@ def uuid_to_color(u: str) -> str:
     h = hashlib.sha256(u.encode()).digest()
     return f"#{h[0]:02x}{h[1]:02x}{h[2]:02x}"
 
-def plot_clusters(clusters: list[cluster_pb2.Cluster], show_radius=True):
+def plot_clusters_on_map(clusters: list[cluster_pb2.Cluster]):
+    # For each cluster, get all points lat and lon and put in a dataframe.
     all_points = []
-    circles = []
-
     for c in clusters:
+        if not c.is_noise:
+            for p in c.points:
+                all_points.append({
+                    "lat": p.lat,
+                    "lon": p.lon,
+                    "density": 1,
+                    "cluster_id": c.cluster_id
+                })
+
+    df = pd.DataFrame(all_points)
+
+    fig = px.density_map(df, lat='lat', lon='lon', z='density', radius=10,
+                        center=dict(lat=0, lon=180), zoom=0,
+                        map_style="open-street-map")
+
+    fig.show()
+
+def plot_clusters(cls: list[cluster_pb2.Cluster], show_radius=True):
+    all_points = []
+
+    for c in clusters.filter_clusters_by_relative_density(cls):
+        if c.is_noise:
+            continue
+
         color = uuid_to_color(c.cluster_id) if not c.is_noise else "#000000"
 
         # Flatten points
-        for p in c.points:
+        for p in c.points: #heatmap.generate_heatmap_points_for_cluster(c):
             all_points.append({
                 "lat": p.lat,
                 "lon": p.lon,
@@ -125,23 +148,11 @@ def plot_clusters(clusters: list[cluster_pb2.Cluster], show_radius=True):
                 "color": color
             })
 
-        # Optional radius circle
-        if show_radius and c.radius > 0 and not c.is_noise:
-            lat0, lon0 = c.centroid.lat, c.centroid.lon
-            r_m = c.radius
-            circle_lats, circle_lons = [], []
-            for theta in [i*2*math.pi/50 for i in range(51)]:
-                # convert meters to degrees
-                dlat = r_m / 111000 * math.cos(theta)
-                dlon = r_m / (111000 * math.cos(math.radians(lat0))) * math.sin(theta)
-                circle_lats.append(lat0 + dlat)
-                circle_lons.append(lon0 + dlon)
-            circles.append({"lat": circle_lats, "lon": circle_lons, "color": color})
-
     df = pd.DataFrame(all_points)
 
     fig = go.Figure()
 
+    """
     # Scatter points
     fig.add_trace(go.Scatter(
         x=df["lon"], y=df["lat"],
@@ -156,22 +167,17 @@ def plot_clusters(clusters: list[cluster_pb2.Cluster], show_radius=True):
                       "<b>Noise:</b> %{customdata[2]}<extra></extra>",
         customdata=df[["cluster_id", "density", "is_noise"]].values
     ))
+    """
 
-    # Radius circles
-    for c in circles:
-        fig.add_trace(go.Scatter(
-            x=c["lon"], y=c["lat"],
-            mode="lines",
-            line=dict(color=c["color"], width=1),
-            hoverinfo="skip"
-        ))
+    # Heatmap
+    fig.add_trace(go.Densitymap(lat=df['lat'], lon=df['lon'], z=df['density'], radius=20))
 
     fig.update_layout(
         xaxis_title="Longitude",
         yaxis_title="Latitude",
         showlegend=False,
-        #width=800,
-        #height=600
+        map_style="open-street-map", # Sets the base map to OpenStreetMap
+        map_zoom=0, # Set initial zoom level
     )
     fig.show()
 
@@ -190,11 +196,9 @@ if __name__ == "__main__":
 
     for region in REGIONS:
         print(f"Generating reports for region {region['name']}")
-        reports.extend(generate_reports(n=50, days_back=10))
+        reports.extend(generate_reports(n=10000, days_back=10))
 
     cl = clusters.calculate_clusters(reports)
     plot_clusters(cl)
-
-    print(*cl)
 
     input()

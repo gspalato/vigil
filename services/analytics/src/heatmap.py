@@ -3,9 +3,9 @@ import numpy as np
 from shapely.geometry import Point, Polygon
 from scipy.spatial import ConvexHull
 
-from generated import heatmap_pb2, location_pb2
+from generated import cluster_pb2, heatmap_pb2, location_pb2
 
-def generate_heatmap_points_for_cluster(cluster_points: location_pb2.Location, max_points=10) -> list[heatmap_pb2.HeatmapPoint]:
+def generate_heatmap_points_for_cluster(cluster: cluster_pb2.Cluster, max_points=10) -> list[heatmap_pb2.HeatmapPoint]:
     """
     Generate a small number of heatmap points that approximate the shape of the cluster,
     with automatically calculated intensity and radius.
@@ -16,8 +16,9 @@ def generate_heatmap_points_for_cluster(cluster_points: location_pb2.Location, m
     Returns:
         List of dicts: { location: {lat, lon}, intensity, radius }
     """
+    cluster_points = cluster.points
     n_reports = len(cluster_points)
-    points = np.array([[r.lat, r.lon] for r in cluster_points])
+    points = np.array([[p.lat, p.lon] for p in cluster_points])
 
     # Compute cluster extent
     lat_min, lon_min = points.min(axis=0)
@@ -64,19 +65,3 @@ def generate_heatmap_points_for_cluster(cluster_points: location_pb2.Location, m
         ))
 
     return heatmap_points
-
-def cluster_to_polygon(cluster_points):
-    """
-    Returns a list of lat/lon points representing the convex hull of a cluster.
-    """
-    if len(cluster_points) < 3:
-        # Not enough points for a polygon; just return the points themselves
-        return [(r['lat'], r['lon']) for r in cluster_points]
-
-    points = np.array([[r['lat'], r['lon']] for r in cluster_points])
-    hull = ConvexHull(points)
-    polygon_points = [(points[v][0], points[v][1]) for v in hull.vertices]
-    
-    # Optional: close the polygon by repeating the first point
-    polygon_points.append(polygon_points[0])
-    return polygon_points
