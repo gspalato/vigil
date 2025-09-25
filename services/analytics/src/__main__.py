@@ -80,7 +80,7 @@ class AnalyticsService(analytics_service_pb2_grpc.AnalyticsService):
         """
 
         points = await db.fetch_heatmap(
-            time=request.time,
+            timespan=request.timespan,
             similarity=request.similarity
         )
 

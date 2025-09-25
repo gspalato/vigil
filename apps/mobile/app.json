@@ -13,30 +13,39 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "process.env.GOOGLE_MAPS_API_KEY"
+      }
+    }
+  },
+  "android": {
+    "adaptiveIcon": {
+      "foregroundImage": "./assets/adaptive-icon.png",
+      "backgroundColor": "#ffffff"
     },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true
-    },
-    "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
-    },
-    "plugins": [
-      "expo-router",
-      "expo-web-browser",
-      "expo-font",
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
-        }
-      ],
-      "expo-secure-store"
-    ]
-  }
+    "edgeToEdgeEnabled": true,
+    "config": {
+      "googleMaps": {
+        "apiKey": "process.env.GOOGLE_MAPS_API_KEY"
+      }
+    }
+  },
+  "web": {
+    "favicon": "./assets/favicon.png",
+    "bundler": "metro"
+  },
+  "plugins": [
+    "expo-router",
+    "expo-web-browser",
+    "expo-font",
+    [
+      "expo-location",
+      {
+        "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+      }
+    ],
+    "expo-secure-store",
+    "expo-video"
+  ]
 }

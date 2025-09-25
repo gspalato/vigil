@@ -25,6 +25,7 @@ import {
 } from "@expo-google-fonts/unbounded";
 
 import "../global.css";
+import { VigilAPIProvider } from "../lib/api";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -54,15 +55,18 @@ export default function RootLayout() {
 
   return (
     <ClerkProvider tokenCache={tokenCache}>
-      <HeroUINativeProvider>
-        <KeyboardProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          />
-        </KeyboardProvider>
-      </HeroUINativeProvider>
+      <VigilAPIProvider>
+        <HeroUINativeProvider>
+          <KeyboardProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: "#000000" },
+              }}
+            />
+          </KeyboardProvider>
+        </HeroUINativeProvider>
+      </VigilAPIProvider>
     </ClerkProvider>
   );
 }

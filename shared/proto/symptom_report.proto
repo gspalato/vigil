@@ -11,11 +11,12 @@ message SymptomReport {
   string                    user_id   = 1;
   google.protobuf.Timestamp timestamp = 2;
 
-  Location                  location  = 3; // Geographic location of the report
+  double                    lat       = 3;
+  double                    lon       = 4;
 
-  map<string, int32>        symptoms  = 4; // Symptoms with per-symptom severity (1-3)
+  map<string, int32>        symptoms  = 5; // Symptoms with per-symptom severity (1-3)
 
-  string                    notes     = 5; // Optional free-text notes
+  string                    notes     = 6; // Optional free-text notes
 
-  string                    cause     = 6; // Inferred most likely cause.
+  string                    cause     = 7; // Inferred most likely cause.
 }

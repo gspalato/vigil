@@ -1,36 +1,53 @@
-import React, { useRef, useEffect } from "react";
-import { Animated, Easing, View } from "react-native";
+import React from "react";
+import { View } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 
 type PingerProps = {
   color?: string;
   size?: number;
+  duration?: number;
 };
 
 export const Pinger: React.FC<PingerProps> = ({
   color = "#00ff7a",
   size = 10,
+  duration = 3000,
 }) => {
-  const scaleAnim = useRef(new Animated.Value(0)).current;
-  const opacityAnim = useRef(new Animated.Value(1)).current;
+  const scale = useSharedValue(0);
+  const opacity = useSharedValue(1);
 
-  useEffect(() => {
-    Animated.loop(
-      Animated.parallel([
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: 1500,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 0,
-          duration: 1500,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, [scaleAnim, opacityAnim]);
+  React.useEffect(() => {
+    // loop the scale and opacity
+    scale.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: duration, easing: Easing.out(Easing.ease) }),
+        withTiming(0, { duration: 0 }) // reset
+      ),
+      -1 // infinite
+    );
+
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(0, { duration: duration, easing: Easing.out(Easing.ease) }),
+        withTiming(1, { duration: 0 }) // reset
+      ),
+      -1
+    );
+  }, [scale, opacity]);
+
+  const pingStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+      opacity: opacity.value,
+    };
+  });
 
   return (
     <View
@@ -44,16 +61,16 @@ export const Pinger: React.FC<PingerProps> = ({
       }}
     >
       <Animated.View
-        style={{
-          position: "absolute",
-          width: size + 20,
-          height: size + 20,
-          borderRadius: (size + 20) / 2,
-          borderWidth: 2,
-          borderColor: color,
-          transform: [{ scale: scaleAnim }],
-          opacity: opacityAnim,
-        }}
+        style={[
+          {
+            position: "absolute",
+            width: size * 3,
+            height: size * 3,
+            borderRadius: (size * 3) / 2, // half of width/height
+            backgroundColor: color,
+          },
+          pingStyle,
+        ]}
       />
     </View>
   );

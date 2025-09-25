@@ -1,16 +1,17 @@
-import Location, { LocationObject } from 'expo-location';
-import { Stack } from 'expo-router/stack'
-import { useEffect, useState } from 'react';
+import * as Location from "expo-location";
+import { Stack } from "expo-router/stack";
+import { useEffect, useState } from "react";
 
 export default function Layout() {
-  const [location, setLocation] = useState<LocationObject | null>(null);
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null
+  );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   useEffect(() => {
     async function getCurrentLocation() {
-
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
         return;
       }
 
@@ -21,8 +22,11 @@ export default function Layout() {
     getCurrentLocation();
   }, []);
 
-
-  return <Stack screenOptions={{
-    headerShown: false
-  }} />
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    />
+  );
 }

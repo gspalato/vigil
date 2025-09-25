@@ -1,5 +1,6 @@
 import 'dotenv/config'
-import express from 'express';
+import express, { Request, Response } from 'express';
+import * as core from "express-serve-static-core";
 import { clerkClient, clerkMiddleware, getAuth, requireAuth } from '@clerk/express'
 
 import { AnalyticsServiceClient } from './clients';
@@ -7,16 +8,12 @@ import { AnalyticsServiceClient } from './clients';
 import * as AnalyticsService from './generated/analytics_service';
 import { ReadingTimespan } from './generated/reading';
 
-const host = process.env.HOST ?? 'localhost';
+const host = process.env.HOST ?? '0.0.0.0';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 const app = express();
 
 app.use(clerkMiddleware())
-
-app.get('/', (req, res) => {
-    res.send({ 'message': 'Hello API'});
-});
 
 app.listen(port, host, () => {
     console.log(`[ ready ] http://${host}:${port}`);
@@ -34,7 +31,7 @@ app.get('/api/users/@me', requireAuth(), async (req, res) => {
   return;
 });
 
-app.get('/api/report', requireAuth(), async (req, res) => {
+app.get('/api/reports', requireAuth(), async (req, res) => {
   const { userId } = getAuth(req)
   if (!userId) {
     return res.status(401).send({ 'message': 'Unauthorized' });
@@ -45,12 +42,45 @@ app.get('/api/report', requireAuth(), async (req, res) => {
   return;
 });
 
+app.post('/api/reports', async (req, res) => {
+  const { userId } = getAuth(req)
+  if (!userId) {
+    return res.status(401).send({ 'message': 'Unauthorized' });
+  }
+
+  const user = await clerkClient.users.getUser(userId);
+  if (!user) {
+    return res.status(401).send({ 'message': 'Unauthorized' });
+  }
+
+  console.log("Received /api/reports request with body:", req.body);
+
+  const reportRes = await AnalyticsServiceClient.InferSymptomsAndCause(
+    AnalyticsService.InferSymptomsAndCauseRequest.create({
+      text: req.body.text
+    })
+  )
+
+  console.log("InferSymptomsAndCause response:", reportRes);
+
+  if (!reportRes.success) {
+    return res.status(400).send({ 'message': 'Failed to analyze symptoms' });
+  }
+
+  res.send(reportRes);
+
+  return;
+});
+
 app.get('/api/heatmap', /*requireAuth(),*/ async (req, res) => {
   //const { userId } = getAuth(req)
   //if (!userId) {
   //  return res.status(401).send({ 'message': 'Unauthorized' });
   //}
 
+  console.log("Received /api/heatmap request with query:", req.query);
+
+  // Validate query parameters.
   if (typeof req.query.timespan !== 'string' && req.query.timespan !== undefined) {
     return res.status(400).send({ 'message': 'Invalid timespan' });
   }

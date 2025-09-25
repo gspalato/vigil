@@ -4,6 +4,9 @@ load('ext://helm_resource', 'helm_resource', 'helm_repo')
 # Generate protos.
 local_resource('_protogen', 'make all', deps=['proto'])
 
+# Generate OpenAPI specs and clients.
+local_resource('_openapigen', 'make openapi-ts', deps=['_protogen'])
+
 # Build service images.
 
 docker_build(
@@ -23,21 +26,15 @@ docker_build(
 docker_build("unreaalism/vigil-digest", "services/digest")
 docker_build("unreaalism/vigil-gateway", "services/gateway")
 
-# Deploy k8s files.
+# Deploy service files.
 k8s_yaml([
     'infra/k8s/analytics.deployment.yaml',
-    'infra/k8s/digest.deployment.yaml',
-    'infra/k8s/gateway.deployment.yaml',
-
     'infra/k8s/analytics.service.yaml',
-    'infra/k8s/digest.service.yaml',
-    'infra/k8s/gateway.service.yaml',
-
-    'infra/k8s/ngrok.ingress.yaml',
-
     'infra/k8s/analytics.secrets.yaml',
+
+    'infra/k8s/gateway.deployment.yaml',
+    'infra/k8s/gateway.service.yaml',
     'infra/k8s/gateway.secrets.yaml',
-    'infra/k8s/ngrok.secrets.yaml'
 ])
 
 # Connect gateway to container port 3000
@@ -60,7 +57,16 @@ helm_resource('headlamp', 'headlamp/headlamp')
 k8s_resource(workload='headlamp', port_forwards='8080:4466')
 
 # Deploy ngrok
-helm_resource('ngrok', 'ngrok/ngrok-operator')
+k8s_yaml([
+  'infra/k8s/ngrok.ingress.yaml',
+  'infra/k8s/ngrok.secrets.yaml'
+])
+
+helm_resource(
+    name='ngrok',
+    chart='ngrok/ngrok-operator',
+    namespace='ngrok-operator',
+)
 
 # Clean volumes and system data so that my PC doesn't run out of space.
 local_resource('_clean', 'docker system prune -a -f && docker volume prune -a -f')

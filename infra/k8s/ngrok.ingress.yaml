@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: ngrok
   rules:
-    - host: "extremely-sincere-drake.ngrok-free.app"
+    - host: "nonabsorbable-chewier-faustino.ngrok-free.dev"
       http:
         paths:
           - path: /

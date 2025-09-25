@@ -1,0 +1,483 @@
+{
+  "info": {
+    "title": "Tspec API",
+    "version": "0.0.1",
+    "description": ""
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/api/users/@me": {
+      "get": {
+        "operationId": "GatewayApiSpec_get_/api/users/@me",
+        "tags": [],
+        "summary": "Get the authenticated user's details",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports": {
+      "get": {
+        "operationId": "GatewayApiSpec_get_/api/reports",
+        "tags": [],
+        "summary": "Get all reports for the authenticated user",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reports": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SymptomReport"
+                      }
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "reports"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "enum": [
+                        "Unauthorized"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "GatewayApiSpec_post_/api/reports",
+        "tags": [],
+        "summary": "Create a new report",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InferSymptomsAndCauseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "enum": [
+                        "Unauthorized"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/heatmap": {
+      "get": {
+        "operationId": "GatewayApiSpec_get_/api/heatmap",
+        "tags": [],
+        "summary": "Get heatmap data points",
+        "parameters": [
+          {
+            "name": "timespan",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "DAY",
+                "HOUR",
+                "MONTH",
+                "WEEK"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "similarity",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchHeatmapResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "enum": [
+                        "Unauthorized"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SymptomReport": {
+        "description": "Represents a single symptom report from a user",
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lon": {
+            "type": "number"
+          },
+          "symptoms": {
+            "description": "Symptoms with per-symptom severity (1-3)",
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "notes": {
+            "description": "Optional free-text notes",
+            "type": "string"
+          },
+          "cause": {
+            "description": "Inferred most likely cause.",
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "cause",
+          "lat",
+          "lon",
+          "notes",
+          "symptoms",
+          "timestamp",
+          "userId"
+        ]
+      },
+      "InferSymptomsAndCauseRequest": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ]
+      },
+      "InferSymptomsAndCauseResponse": {
+        "type": "object",
+        "properties": {
+          "symptoms": {
+            "description": "Symptom -> severity",
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "cause": {
+            "description": "The most probable cause/disease.",
+            "type": "string"
+          },
+          "success": {
+            "description": "Whether the inference was successful.",
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "cause",
+          "success",
+          "symptoms"
+        ]
+      },
+      "FetchHeatmapResponse": {
+        "type": "object",
+        "properties": {
+          "heatmapPoints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeneratedHeatmap"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "heatmapPoints"
+        ]
+      },
+      "GeneratedHeatmap": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HeatmapPoint"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "createdAt",
+          "id",
+          "points"
+        ]
+      },
+      "HeatmapPoint": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "intensity": {
+            "type": "number"
+          },
+          "radius": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "intensity",
+          "location",
+          "radius"
+        ]
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number"
+          },
+          "lon": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "lat",
+          "lon"
+        ]
+      }
+    }
+  }
+}

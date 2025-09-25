@@ -2032,6 +2032,13 @@
     "@noble/hashes" "~1.8.0"
     "@scure/base" "~1.2.5"
 
+"@shopify/flash-list@2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@shopify/flash-list/-/flash-list-2.0.2.tgz#644748f883fccf8cf2e0ca251e0ef88673b89120"
+  integrity sha512-zhlrhA9eiuEzja4wxVvotgXHtqd3qsYbXkQ3rsBfOgbFA9BVeErpDE/yEwtlIviRGEqpuFj/oU5owD6ByaNX+w==
+  dependencies:
+    tslib "2.8.1"
+
 "@shopify/react-native-skia@2.2.12":
   version "2.2.12"
   resolved "https://registry.npmjs.org/@shopify/react-native-skia/-/react-native-skia-2.2.12.tgz"
@@ -3466,6 +3473,11 @@ expo-three@^8.0.0:
   dependencies:
     "@expo/browser-polyfill" "^1.0.1"
     expo-asset-utils "~3.0.0"
+
+expo-video@~3.0.11:
+  version "3.0.11"
+  resolved "https://registry.yarnpkg.com/expo-video/-/expo-video-3.0.11.tgz#9ba2c4da694fe3d54f191f160702ddc70412e782"
+  integrity sha512-k/xz8Ml/LekuD2U2LomML2mUISvkHzYDz3fXY8Au1fEaYVNTfTs7Gyfo1lvF6S1X7u3XutoAfew8e8e1ZUR2fg==
 
 expo-web-browser@~15.0.7:
   version "15.0.7"

@@ -4,14 +4,43 @@ import {
   KeyboardAwareScrollView,
   KeyboardToolbar,
 } from "react-native-keyboard-controller";
+import { createVideoPlayer, VideoView } from "expo-video";
 
 import { Button, TextField } from "heroui-native";
 
-import { ThemedText } from "../../components/ThemedText";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
+import { ThemedText } from "../../components/ThemedText";
+import { useApi } from "../../lib/api";
+import { useState } from "react";
+
+// Create a singleton video player for the AI blob.
+// This ensures that the video continues playing seamlessly across re-renders.
+const AiBlobAssetId = require("../../assets/ai_blob_masked.mp4");
+const AiBlobVideoPlayer = createVideoPlayer(AiBlobAssetId);
+AiBlobVideoPlayer.loop = true;
+AiBlobVideoPlayer.muted = true;
+AiBlobVideoPlayer.play();
+
 export default function Page() {
+  const { reportSymptoms } = useApi();
+
+  const [text, setText] = useState("");
+
+  const onAnalyze = async () => {
+    if (text.trim().length === 0) {
+      return;
+    }
+
+    try {
+      const res = await reportSymptoms(text);
+      console.log(res);
+    } catch (error) {
+      console.error("Error reporting symptoms:", error);
+    }
+  };
+
   return (
     <>
       <SafeAreaView
@@ -33,7 +62,24 @@ export default function Page() {
           }}
         >
           <StatusBar barStyle={"dark-content"} />
-          <View style={{ width: "100%", gap: 10 }}>
+          <View
+            style={{
+              width: "100%",
+              gap: 3,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "flex-start",
+            }}
+          >
+            <VideoView
+              style={{ height: 50, width: 50 }}
+              player={AiBlobVideoPlayer}
+              fullscreenOptions={{ enable: false }}
+              allowsPictureInPicture={false}
+              allowsVideoFrameAnalysis={false}
+              nativeControls={false}
+              shouldRasterizeIOS
+            />
             <ThemedText type="title" size="xl">
               How are you feeling today?
             </ThemedText>
@@ -43,6 +89,7 @@ export default function Page() {
               placeholder="Describe your symptoms, you can define their intensity as well."
               multiline
               style={{ fontFamily: "InstrumentSans_400Regular" }}
+              onChangeText={setText}
             />
           </TextField>
           <View
@@ -81,7 +128,7 @@ export default function Page() {
                 borderRadius: 50,
                 flex: 1,
               }}
-              onPress={() => router.back()}
+              onPress={onAnalyze}
             >
               <Button.LabelContent>
                 <ThemedText
