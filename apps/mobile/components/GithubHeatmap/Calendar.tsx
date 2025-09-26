@@ -144,7 +144,6 @@ export const GitHubContributionCalendar = forwardRef<
 
 								// If outside data range, show empty square
 								if (!isInDataRange) {
-									console.log('outside of range:', dateStr);
 									return (
 										<View
 											key={`empty-${weekIndex}-${dayIndex}`}

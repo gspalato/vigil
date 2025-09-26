@@ -98,7 +98,6 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 			const token = await clerkAuth.getToken();
 			if (!token) {
 				console.warn('No auth token available for fetching reports');
-				router.replace('(auth)');
 				return;
 			} else {
 				console.log(token);

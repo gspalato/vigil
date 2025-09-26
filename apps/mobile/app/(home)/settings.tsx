@@ -90,7 +90,7 @@ export default function Page() {
 										Haptics.ImpactFeedbackStyle.Medium,
 									);
 									await signOut();
-									router.replace('(auth)');
+									router.replace('/(auth)/sign-in');
 								}}
 							>
 								{isLiquidGlassAvailable() ? (

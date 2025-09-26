@@ -67,11 +67,8 @@ export default function Page() {
 		}
 	};
 
-	const { width, height } = useWindowDimensions();
-	const insets = useSafeAreaInsets();
-
 	return (
-		<View style={{ flex: 1, backgroundColor: Palette.background }}>
+		<View style={{ flex: 1 }}>
 			<View style={{ flex: 1, justifyContent: 'flex-end' }}>
 				<View
 					style={{
@@ -86,8 +83,12 @@ export default function Page() {
 				>
 					<Image
 						source={MapImage}
-						style={{ width: '100%', height: '100%' }}
-						fadeDuration={200}
+						style={{
+							width: '100%',
+							height: '100%',
+							backgroundColor: '#000',
+						}}
+						fadeDuration={500}
 					/>
 					<View
 						style={{

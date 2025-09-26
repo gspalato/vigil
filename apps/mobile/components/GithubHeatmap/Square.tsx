@@ -93,8 +93,6 @@ export const ContributionSquare = forwardRef<
 	const animatedStyle = useAnimatedStyle(() => {
 		const startColor = colorScheme.level0;
 		const endColor = colorScheme[`level${level}`] || colorScheme.level0;
-		if (endColor != startColor)
-			console.log('animating', level, startColor, endColor);
 
 		const animatedColor = interpolateColor(
 			progress.value,

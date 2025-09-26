@@ -49,7 +49,6 @@ export const GitHubContributionCalendar = forwardRef<
 	// Calculate calendar grid
 	const weeks = useMemo(() => {
 		if (!startDate || !endDate) {
-			console.log('Missing start or end date');
 			return [];
 		}
 
@@ -81,8 +80,6 @@ export const GitHubContributionCalendar = forwardRef<
 				}
 			});
 		});
-
-		console.log('Square index map size:', indexMap.size);
 		return indexMap;
 	}, [weeks, startDate, endDate]);
 
@@ -148,7 +145,6 @@ export const GitHubContributionCalendar = forwardRef<
 
 								// If outside data range, show empty square
 								if (!isInDataRange) {
-									console.log('outside of range:', dateStr);
 									return (
 										<View
 											key={`empty-${weekIndex}-${dayIndex}`}

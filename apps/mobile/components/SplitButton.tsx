@@ -36,10 +36,6 @@ export const SplitButton: React.FC<SplitButtonProps> = ({
 	const { width: windowWidth } = useWindowDimensions();
 	const [width, setWidth] = useState(0);
 
-	useEffect(() => {
-		console.log('got width', width);
-	}, [width]);
-
 	const paddingHorizontal = 0;
 	const gap = 10;
 

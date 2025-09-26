@@ -13,6 +13,7 @@ export default function AuthRoutesLayout() {
 		<Stack
 			screenOptions={{
 				headerShown: false,
+				contentStyle: { backgroundColor: '#000000' },
 			}}
 		/>
 	);

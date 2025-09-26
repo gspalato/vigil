@@ -26,6 +26,7 @@ const clerkClient = createClerkClient({
 app.use(
   clerkMiddleware({
     clerkClient,
+    publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
   })
 );
 app.use(express.json());
@@ -35,16 +36,18 @@ app.listen(port, host, () => {
 });
 
 app.get("/api/reports", async (req, res) => {
-  const { userId, isAuthenticated } = getAuth(req);
-  if (!isAuthenticated) {
-    console.log("Unauthorized request to /api/reports.");
+  const auth = getAuth(req);
+  console.log("Auth object:", auth);
+  console.log("Headers:", req.headers);
+  
+  // Handle pending sessions - they're valid but not fully activated
+  if (!auth.userId || (auth.sessionStatus !== 'active' && auth.sessionStatus !== 'pending')) {
+    console.log("Unauthorized request to /api/reports. Auth status:", auth);
     return res.status(401).send({ message: "Unauthorized" });
-  }
-
-  const { data, error } = await supabase
+  }  const { data, error } = await supabase
     .from("reports")
     .select("*")
-    .eq("user_id", userId);
+    .eq("user_id", auth.userId);
 
   if (error) {
     console.log("Error fetching reports from database:", error);
@@ -59,8 +62,10 @@ app.get("/api/reports", async (req, res) => {
 app.post("/api/reports", async (req, res) => {
   console.log("Received /api/reports request with body:", req.body);
   const auth = getAuth(req);
-  if (!auth.isAuthenticated) {
-    console.log("Unauthorized request to /api/reports.");
+  
+  // Handle pending sessions - they're valid but not fully activated
+  if (!auth.userId || (auth.sessionStatus !== 'active' && auth.sessionStatus !== 'pending')) {
+    console.log("Unauthorized request to /api/reports. Auth status:", auth);
     return res.status(401).send({ message: "Unauthorized" });
   }
 

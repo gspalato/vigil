@@ -73,31 +73,6 @@ Please, try again with more details, describing your symptoms clearly.
 For example, instead of saying "I feel bad", you could say "I have a headache and a sore throat".
 		`;
 
-	const originalAST = tokensToAST(stringToTokens(body, markdownItInstance));
-
-	const [ast, setAst] = useState<ASTNode[]>([]);
-	console.log(originalAST);
-	useEffect(() => {
-		// Iter through the AST and slowly add nodes to the displayed AST.
-		// Also invoke a haptic feedback each time a new node is added.
-		// This will create a typewriter effect.
-
-		return;
-
-		let currentIndex = 0;
-		const interval = setInterval(() => {
-			if (currentIndex < originalAST.length) {
-				setAst((prev) => [...prev, originalAST[currentIndex]]);
-				Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-				currentIndex++;
-			} else {
-				clearInterval(interval);
-			}
-		}, 15);
-
-		return () => clearInterval(interval);
-	}, [originalAST]);
-
 	return (
 		<SafeAreaView
 			style={{
