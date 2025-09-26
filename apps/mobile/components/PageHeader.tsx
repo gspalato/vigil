@@ -1,14 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { GlassContainer, isLiquidGlassAvailable } from 'expo-glass-effect';
 import * as Haptics from 'expo-haptics';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GlassView } from './GlassView';
-import { Pinger } from './Pinger';
 import { ThemedText } from './ThemedText';
+import { ThemedView } from './ThemedView';
 
 type PageHeaderProps = {
 	title: string;
@@ -18,16 +20,17 @@ export const PageHeader: React.FC<PageHeaderProps> = (props) => {
 	const { children, title } = props;
 
 	const safeAreaInsets = useSafeAreaInsets();
-	const navigation = useNavigation();
 
 	return (
-		<View
+		<ThemedView
 			id='header'
+			elevation='surface'
 			style={[styles.container, { paddingTop: safeAreaInsets.top }]}
+			thinBorder
 		>
 			<Pressable
 				onPress={() => {
-					navigation.goBack();
+					router.back();
 					Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 				}}
 			>
@@ -53,7 +56,7 @@ export const PageHeader: React.FC<PageHeaderProps> = (props) => {
 			</Pressable>
 			<ThemedText style={styles.title}>{title}</ThemedText>
 			{children}
-		</View>
+		</ThemedView>
 	);
 };
 

@@ -4,13 +4,15 @@ import {
 	FontAwesome6,
 	Ionicons,
 } from '@expo/vector-icons';
+import { StackActions } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
 	GlassView as ExpoGlassView,
 	GlassContainer,
 	isLiquidGlassAvailable,
 } from 'expo-glass-effect';
 import * as Haptics from 'expo-haptics';
-import { Link, Redirect, router, useNavigation } from 'expo-router';
+import { Link, Redirect, router, Stack, useNavigation } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -22,8 +24,6 @@ type HomeNavbarProps = {
 
 export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 	const { disableLiquidGlass = false } = props;
-
-	const navigation = useNavigation();
 
 	return isLiquidGlassAvailable() && !disableLiquidGlass ? (
 		<View
@@ -44,10 +44,7 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 						onPress={() =>
 							Haptics.impactAsync(
 								Haptics.ImpactFeedbackStyle.Medium,
-							).then(() =>
-								//router.push("/(home)/settings")
-								navigation.navigate('settings'),
-							)
+							).then(() => router.push('/(home)/settings'))
 						}
 						style={styles.toolbarButton}
 					>
@@ -63,10 +60,7 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 						onPress={() =>
 							Haptics.impactAsync(
 								Haptics.ImpactFeedbackStyle.Medium,
-							).then(() =>
-								//router.push("/(home)/history")
-								navigation.navigate('history'),
-							)
+							).then(() => router.push('/(home)/history'))
 						}
 						style={styles.toolbarButton}
 					>
@@ -78,10 +72,7 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 				onPress={() =>
 					Haptics.impactAsync(
 						Haptics.ImpactFeedbackStyle.Medium,
-					).then(() =>
-						//router.push("/(home)/report")
-						navigation.navigate('report'),
-					)
+					).then(() => router.push('/(home)/report'))
 				}
 			>
 				<ExpoGlassView
@@ -107,10 +98,7 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 					onPress={() =>
 						Haptics.impactAsync(
 							Haptics.ImpactFeedbackStyle.Medium,
-						).then(() =>
-							//router.push("/(home)/settings")
-							navigation.navigate('settings'),
-						)
+						).then(() => router.push('/(home)/settings'))
 					}
 					style={styles.toolbarButton}
 				>
@@ -120,10 +108,7 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 					onPress={() =>
 						Haptics.impactAsync(
 							Haptics.ImpactFeedbackStyle.Medium,
-						).then(() =>
-							//router.push("/(home)/report")
-							navigation.navigate('history'),
-						)
+						).then(() => router.push('/(home)/report'))
 					}
 					style={styles.toolbarButton}
 				>
@@ -134,10 +119,7 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 				onPress={() =>
 					Haptics.impactAsync(
 						Haptics.ImpactFeedbackStyle.Medium,
-					).then(() =>
-						//router.push("/(home)/report")
-						navigation.navigate('report'),
-					)
+					).then(() => router.push('/(home)/report'))
 				}
 			>
 				<GlassView

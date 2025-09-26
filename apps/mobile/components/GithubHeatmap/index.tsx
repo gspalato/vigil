@@ -2,6 +2,8 @@ import * as Haptics from 'expo-haptics';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View, ViewProps } from 'react-native';
 
+import { ThemedView } from '@components/ThemedView';
+
 import { GitHubContributionCalendar } from './Calendar';
 import { COLOR_SCHEMES } from './colorScheme';
 import { generateContributionFromReports } from './convert';
@@ -46,7 +48,7 @@ export const GitHubHeatmap = ({
 			<GitHubContributionCalendar
 				ref={calendarRef}
 				data={contributionData}
-				colorScheme={COLOR_SCHEMES.github}
+				colorScheme={COLOR_SCHEMES.blue}
 			/>
 		</View>
 	);

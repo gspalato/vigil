@@ -37,21 +37,22 @@ export const GitHubContributionCalendar = forwardRef<
 	// Calculate date range from data
 	const { startDate, endDate } = useMemo(() => {
 		const dates = Object.keys(data)
-			.map((dateStr) => {
-				const [year, month, day] = dateStr.split('-').map(Number);
-				return new Date(year, month - 1, day);
-			})
+			.map((dateStr) => new Date(dateStr))
 			.sort((a, b) => a.getTime() - b.getTime());
+
 		return {
 			startDate: dates[0],
 			endDate: dates[dates.length - 1],
 		};
 	}, [data]);
 
-	// Generate day labels
-
 	// Calculate calendar grid
 	const weeks = useMemo(() => {
+		if (!startDate || !endDate) {
+			console.log('Missing start or end date');
+			return [];
+		}
+
 		const calendarStart = startOfWeek(startDate, { weekStartsOn: 1 });
 		const calendarEnd = endOfWeek(endDate, { weekStartsOn: 1 });
 
@@ -71,6 +72,8 @@ export const GitHubContributionCalendar = forwardRef<
 		weeks.forEach((week, weekIndex) => {
 			week.forEach((date, dayIndex) => {
 				const isInDataRange = date >= startDate && date <= endDate;
+				const dateStr = format(date, 'yyyy-MM-dd');
+
 				if (isInDataRange) {
 					const key = `${weekIndex}-${dayIndex}`;
 					indexMap.set(key, squareIndex);
@@ -79,6 +82,7 @@ export const GitHubContributionCalendar = forwardRef<
 			});
 		});
 
+		console.log('Square index map size:', indexMap.size);
 		return indexMap;
 	}, [weeks, startDate, endDate]);
 
@@ -159,6 +163,7 @@ export const GitHubContributionCalendar = forwardRef<
 								const squareIndex = squareIndexMap.get(
 									`${weekIndex}-${dayIndex}`,
 								)!;
+
 								return (
 									<ContributionSquare
 										key={`${weekIndex}-${dayIndex}`}

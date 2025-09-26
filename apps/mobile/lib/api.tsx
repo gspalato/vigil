@@ -1,5 +1,7 @@
-import { useAuth, useClerk } from '@clerk/clerk-expo';
+import { useAuth, useClerk, useUser } from '@clerk/clerk-expo';
+import { UserResource, UseUserReturn } from '@clerk/types';
 import * as Location from 'expo-location';
+import { router } from 'expo-router';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import * as API from './generated/api';
@@ -23,7 +25,7 @@ enum FetchHeatmapPointsTimespan {
 }
 
 // Context
-type VigilAPIContextType = {
+export type VigilAPIContextType = {
 	heatmapPoints: HeatmapPoint[];
 	fetchHeatmapPoints: (params?: {
 		timespan?: FetchHeatmapPointsTimespan | `${FetchHeatmapPointsTimespan}`;
@@ -33,7 +35,10 @@ type VigilAPIContextType = {
 	fetchMyReports: () => Promise<void>;
 	reportSymptoms: (
 		text: string,
-	) => Promise<API.GatewayApiSpecPostApiReportsResponse>;
+	) => Promise<
+		| API.GatewayApiSpecPostApiReportsResponse
+		| { success: false; message: string }
+	>;
 };
 
 const VigilAPIContext = createContext<VigilAPIContextType | undefined>(
@@ -52,8 +57,7 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 	children,
 }) => {
 	const clerkAuth = useAuth();
-
-	const [loading, setLoading] = useState(false);
+	const { user } = useUser();
 
 	const gatewayClientOpenAPISDK = createClient({
 		baseUrl: process.env.EXPO_PUBLIC_VIGIL_BACKEND_URL,
@@ -90,21 +94,39 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 
 	const [myReports, setMyReports] = useState<API.SymptomReport[]>([]);
 	const fetchMyReports = async () => {
-		const token = await clerkAuth.getToken();
-		const res = await API.gatewayApiSpecGetApiReports({
-			client: gatewayClientOpenAPISDK,
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
+		try {
+			const token = await clerkAuth.getToken();
+			if (!token) {
+				console.warn('No auth token available for fetching reports');
+				router.replace('(auth)');
+				return;
+			} else {
+				console.log(token);
+			}
 
-		if (res.error) {
-			throw new Error(`Error fetching reports: ${res.error.message}`);
+			const res = await API.gatewayApiSpecGetApiReports({
+				client: gatewayClientOpenAPISDK,
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			if (res.error) {
+				console.error('Failed to fetch my reports:', res.error);
+				return;
+			}
+
+			setMyReports(res.data.reports);
+		} catch (error) {
+			console.error('Failed to fetch reports (catch):', error);
+			return;
 		}
-
-		setMyReports(res.data.reports);
 	};
-	const reportSymptoms = async (text: string) => {
+	const reportSymptoms = async (
+		text: string,
+	): Promise<
+		API.InferSymptomsAndCauseResponse | { success: false; message: string }
+	> => {
 		try {
 			const token = await clerkAuth.getToken();
 			const location = await Location.getCurrentPositionAsync();
@@ -123,15 +145,19 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 			});
 
 			if (res.error) {
-				throw new Error(
-					`Error reporting symptoms: ${res.error.message}`,
-				);
+				return {
+					success: false,
+					message: res.error.message || 'Unknown error',
+				};
 			}
 
 			return res.data;
 		} catch (error) {
 			console.error('Failed to report symptoms:', error);
-			throw error;
+			return {
+				success: false,
+				message: (error as Error).message || 'Unknown error',
+			};
 		}
 	};
 

@@ -1,18 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { router } from 'expo-router';
 import { Button, TextField } from 'heroui-native';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StatusBar, View } from 'react-native';
-import {
-	KeyboardAwareScrollView,
-	KeyboardToolbar,
-} from 'react-native-keyboard-controller';
+import { StatusBar, StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActivityStatus } from '@components/ActivityIndicator';
 import { AiBlob } from '@components/AiBlob';
-import { LoadingButton } from '@components/LoadingButton';
 import { ThemedText } from '@components/ThemedText';
+
+import { SplitButtons2 } from '@/components/SplitButtons2';
 
 import { useApi } from '@lib/api';
 
@@ -24,14 +25,12 @@ export default function Page() {
 	const [text, setText] = useState('');
 	const [status, setStatus] = useState<ActivityStatus>('idle');
 
-	const navigation = useNavigation();
+	const [splitted, setSplitted] = useState(true);
 
 	const analyze = async () => {
 		if (text.trim().length === 0) {
 			return;
 		}
-
-		navigation.navigate('report_thinking');
 
 		setStatus('loading');
 		try {
@@ -40,12 +39,21 @@ export default function Page() {
 
 			if (res.success) {
 				setStatus('success');
-				navigation.navigate('report_result', { result: res });
 			}
-		} catch (error) {
+
+			router.setParams({ result: JSON.stringify(res) });
+			router.push('report_result');
+		} catch (error: any) {
 			console.error('Error reporting symptoms:', error);
 			setStatus('error');
-			return;
+
+			router.setParams({
+				result: JSON.stringify({
+					success: false,
+					message: error.message,
+				}),
+			});
+			router.push('report_result');
 		}
 	};
 
@@ -97,6 +105,98 @@ export default function Page() {
 							onChangeText={setText}
 						/>
 					</TextField>
+					<SplitButtons2
+						style={{ width: '100%', marginTop: 'auto' }}
+						splitted={status === 'idle'}
+						gap={10}
+						offsetMultiplier={0.3}
+						leftButton={(style) => (
+							<Animated.View
+								style={[
+									{
+										width: 0,
+										position: 'absolute',
+										left: 0,
+										bottom: 0,
+									},
+									style,
+								]}
+							>
+								<Button
+									variant='secondary'
+									size='md'
+									style={{
+										borderRadius: 50,
+										width: '100%',
+										right: 0,
+									}}
+									onPress={() => router.back()}
+								>
+									<Button.StartContent>
+										<Ionicons
+											name='chevron-back'
+											size={18}
+											color={'#000'}
+										/>
+									</Button.StartContent>
+									<Button.LabelContent>
+										<ThemedText
+											style={{
+												fontSize: 15,
+												color: '#000',
+											}}
+											type='button'
+										>
+											Back
+										</ThemedText>
+									</Button.LabelContent>
+								</Button>
+							</Animated.View>
+						)}
+						rightButton={(style) => (
+							<Animated.View
+								style={[
+									{
+										width: 0,
+										position: 'absolute',
+										right: 0,
+										bottom: 0,
+									},
+									style,
+								]}
+							>
+								<Button
+									variant='primary'
+									size='md'
+									style={{
+										borderRadius: 50,
+										width: '100%',
+									}}
+									onPress={analyze}
+								>
+									<Button.LabelContent>
+										<ThemedText
+											style={{
+												fontSize: 15,
+												color: '#fff',
+											}}
+											type='button'
+										>
+											Analyze
+										</ThemedText>
+									</Button.LabelContent>
+									<Button.EndContent>
+										<Ionicons
+											name='chevron-forward'
+											size={18}
+											color={'#fff'}
+										/>
+									</Button.EndContent>
+								</Button>
+							</Animated.View>
+						)}
+					/>
+					{/*
 					<View
 						style={{
 							width: '100%',
@@ -130,31 +230,6 @@ export default function Page() {
 								</ThemedText>
 							</Button.LabelContent>
 						</Button>
-						{/* 
-            <LoadingButton
-              status={status}
-              onPress={async () => {
-                await analyze();
-              }}
-              style={{
-                height: 60,
-                borderRadius: 50,
-                width: "100%",
-              }}
-              colorFromStatusMap={{
-                idle: "#47A1E6",
-                loading: "#47A1E6",
-                success: "#5BC682",
-                error: "#CD5454",
-              }}
-              titleFromStatusMap={{
-                idle: "Analyze",
-                loading: "Analyzing...",
-                success: "Done!",
-                error: "Failed to analyze.",
-              }}
-            />
-            */}
 						<Button
 							variant='primary'
 							size='md'
@@ -181,8 +256,27 @@ export default function Page() {
 							</Button.EndContent>
 						</Button>
 					</View>
+          		*/}
 				</KeyboardAwareScrollView>
 			</SafeAreaView>
 		</>
 	);
 }
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		backgroundColor: '#fff',
+		alignItems: 'center',
+		justifyContent: 'flex-end',
+		paddingBottom: 64,
+	},
+	icon: {
+		marginRight: 8,
+		justifyContent: 'center',
+		alignItems: 'center',
+		width: 18,
+		height: 18,
+		marginBottom: -1.5,
+	},
+});

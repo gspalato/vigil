@@ -2,7 +2,7 @@ export const Palette = {
 	background: '#f2f2f2',
 	surface: '#ffffff',
 
-	border: '#eee',
+	border: '#ddd',
 	borderLight: '#f7f7f7',
 
 	textPrimary: '#000000',

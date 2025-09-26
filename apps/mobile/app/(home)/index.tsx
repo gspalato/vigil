@@ -1,9 +1,9 @@
-import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo';
+import { useUser } from '@clerk/clerk-expo';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
-import { Link, Redirect, router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -59,61 +59,56 @@ export default function Page() {
 
 	return (
 		<>
-			<SignedIn>
-				<StatusBar style='light' />
-				<View style={styles.container}>
-					<HomeHeader alertCount={alertCount} />
-					<MapView
-						provider={PROVIDER_GOOGLE}
-						googleMapId='d6f5630a06421fd44ad483f1'
-						style={styles.map}
-						//userInterfaceStyle="dark"
-						initialRegion={initialRegion ?? undefined}
-						region={initialRegion ?? undefined}
-						showsUserLocation
-						followsUserLocation
-						onPanDrag={() => {}} // Fix for low framerate when interacting with the map on iOS.
-					>
-						<Heatmap points={heatmapPoints as any} />
-					</MapView>
-				</View>
-				<MaskedView
-					style={{
-						position: 'absolute',
-						width: '100%',
-						height: 140,
-						pointerEvents: 'none',
-						opacity: 0,
-					}}
-					maskElement={
-						<LinearGradient
-							colors={['rgba(0,0,0,.5)', 'rgba(0,0,0,0)']} // Adjust colors for desired blur transition
-							style={StyleSheet.absoluteFill}
-						/>
-					}
+			<StatusBar style='light' />
+			<View style={styles.container}>
+				<HomeHeader alertCount={alertCount} />
+				<MapView
+					provider={PROVIDER_GOOGLE}
+					googleMapId='d6f5630a06421fd44ad483f1'
+					style={styles.map}
+					//userInterfaceStyle="dark"
+					initialRegion={initialRegion ?? undefined}
+					region={initialRegion ?? undefined}
+					showsUserLocation
+					followsUserLocation
+					onPanDrag={() => {}} // Fix for low framerate when interacting with the map on iOS.
 				>
-					<BlurView
-						intensity={1000}
-						tint='dark'
+					<Heatmap points={heatmapPoints as any} />
+				</MapView>
+			</View>
+			<MaskedView
+				style={{
+					position: 'absolute',
+					width: '100%',
+					height: 140,
+					pointerEvents: 'none',
+					opacity: 0,
+				}}
+				maskElement={
+					<LinearGradient
+						colors={['rgba(0,0,0,.5)', 'rgba(0,0,0,0)']} // Adjust colors for desired blur transition
 						style={StyleSheet.absoluteFill}
 					/>
-				</MaskedView>
-				<SafeAreaView
-					style={{
-						position: 'absolute',
-						flex: 1,
-						width: '100%',
-						height: '100%',
-						justifyContent: 'flex-end',
-						pointerEvents: 'box-none',
-					}}
-				>
-					<HomeNavbar />
-				</SafeAreaView>
-			</SignedIn>
-			<SignedOut>
-				<Redirect href='/(auth)/sign-in' />
-			</SignedOut>
+				}
+			>
+				<BlurView
+					intensity={1000}
+					tint='dark'
+					style={StyleSheet.absoluteFill}
+				/>
+			</MaskedView>
+			<SafeAreaView
+				style={{
+					position: 'absolute',
+					flex: 1,
+					width: '100%',
+					height: '100%',
+					justifyContent: 'flex-end',
+					pointerEvents: 'box-none',
+				}}
+			>
+				<HomeNavbar />
+			</SafeAreaView>
 		</>
 	);
 }

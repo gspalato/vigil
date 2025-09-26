@@ -3,7 +3,7 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import { FlashList } from '@shopify/flash-list';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
 	Pressable,
 	ScrollView,
@@ -86,95 +86,87 @@ export default function Page() {
 		fetchMyReports();
 	}, []);
 
-	useEffect(() => console.log(myReports), [myReports]);
+	const reports = useMemo(
+		() => myReports.sort((a, b) => a.timestamp - b.timestamp),
+		[myReports],
+	);
 
 	return (
 		<>
 			<StatusBar barStyle='dark-content' />
 			<View style={styles.page}>
 				<PageHeader title='History' />
-				<View style={{ flex: 1, padding: 20 }}>
-					<ThemedView
-						style={{
-							flex: 1,
-							backgroundColor: '#fff',
-							borderTopLeftRadius: borderRadius.dp / 2,
-							borderTopRightRadius: borderRadius.dp / 2,
-							borderBottomLeftRadius: borderRadius.dp,
-							borderBottomRightRadius: borderRadius.dp,
-						}}
-						thinBorder
-					>
-						<MaskedView
-							style={{
-								position: 'absolute',
-								bottom: 0,
-								width: '100%',
-								height: 140,
-								pointerEvents: 'none',
-								opacity: 0,
-							}}
-							maskElement={
-								<LinearGradient
-									colors={['rgba(0,0,0,.5)', 'rgba(0,0,0,0)']} // Adjust colors for desired blur transition
-									style={StyleSheet.absoluteFill}
-								/>
-							}
-						>
-							<BlurView
-								intensity={1000}
-								tint='dark'
-								style={StyleSheet.absoluteFill}
-							/>
-						</MaskedView>
-						<FlashList
-							style={{ flex: 1 }}
-							data={myReports.sort(
-								(a, b) => a.timestamp - b.timestamp,
-							)}
-							renderItem={({ item }) => (
-								<View
+				<View style={{ flex: 1, paddingHorizontal: 20 }}>
+					<FlashList
+						style={{ flex: 1 }}
+						ListHeaderComponent={<View style={{ height: 20 }} />} // space at top
+						ListFooterComponent={<View style={{ height: 20 }} />} // space at bottom
+						data={reports}
+						renderItem={({ item, index }) => (
+							<View
+								style={{
+									padding: 15,
+									paddingBottom:
+										index === reports.length - 1 ? 25 : 15,
+
+									borderBottomWidth: StyleSheet.hairlineWidth,
+									borderBottomColor: Palette.border,
+									gap: 3,
+									backgroundColor: '#fff',
+
+									borderTopLeftRadius:
+										index === 0 ? borderRadius.dp / 2 : 0,
+									borderTopRightRadius:
+										index === 0 ? borderRadius.dp / 2 : 0,
+									borderBottomLeftRadius:
+										index === reports.length - 1
+											? borderRadius.dp
+											: 0,
+									borderBottomRightRadius:
+										index === reports.length - 1
+											? borderRadius.dp
+											: 0,
+
+									borderColor: Palette.border,
+									borderWidth: StyleSheet.hairlineWidth,
+								}}
+							>
+								<ThemedText
+									type='title'
 									style={{
-										padding: 15,
-										borderBottomWidth: 1,
-										borderBottomColor: Palette.border,
-										gap: 3,
+										fontSize: 20,
+										fontWeight: 'bold',
 									}}
 								>
-									<ThemedText
-										type='title'
-										style={{
-											fontSize: 20,
-											fontWeight: 'bold',
-										}}
-									>
-										{capitalizeFirstLetter(item.cause)}
-									</ThemedText>
-									<ThemedText
-										style={{
-											fontSize: 16,
-											fontWeight: 'bold',
-										}}
-										numberOfLines={2}
-										ellipsizeMode='tail'
-									>
-										{capitalizeFirstLetter(
-											Object.keys(item.symptoms).join(
-												', ',
-											) + '.',
-										)}
-									</ThemedText>
-									<ThemedText
-										style={{ fontSize: 12, color: '#666' }}
-									>
-										{new Date(
-											item.timestamp,
-										).toLocaleDateString()}
-									</ThemedText>
-								</View>
-							)}
-						/>
-					</ThemedView>
+									{capitalizeFirstLetter(item.cause)}
+								</ThemedText>
+								<ThemedText
+									style={{
+										fontSize: 16,
+										fontWeight: 'bold',
+									}}
+									numberOfLines={2}
+									ellipsizeMode='tail'
+								>
+									{capitalizeFirstLetter(
+										Object.keys(item.symptoms).join(', ') +
+											'.',
+									)}
+								</ThemedText>
+								<ThemedText
+									style={{
+										fontSize: 12,
+										color: '#888',
+										paddingTop: 3,
+									}}
+								>
+									{new Date(
+										item.timestamp,
+									).toLocaleDateString()}
+								</ThemedText>
+							</View>
+						)}
+					/>
 				</View>
 			</View>
 		</>

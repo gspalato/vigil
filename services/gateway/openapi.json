@@ -6,55 +6,6 @@
   },
   "openapi": "3.0.3",
   "paths": {
-    "/api/users/@me": {
-      "get": {
-        "operationId": "GatewayApiSpec_get_/api/users/@me",
-        "tags": [],
-        "summary": "Get the authenticated user's details",
-        "parameters": [
-          {
-            "name": "Authorization",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": false,
-                  "required": [
-                    "message"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/reports": {
       "get": {
         "operationId": "GatewayApiSpec_get_/api/reports",
