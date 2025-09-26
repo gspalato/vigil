@@ -29,6 +29,10 @@ export function getApproximateScreenCornerRadius() {
   };
 }
 
+export function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 // useGoogleMapIosPerfFix.ios.ts
 import { Easing, useDerivedValue, useSharedValue, withRepeat, withTiming } from "react-native-reanimated"
 

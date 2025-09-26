@@ -1,19 +1,27 @@
 import 'dotenv/config'
 import express, { Request, Response } from 'express';
 import * as core from "express-serve-static-core";
-import { clerkClient, clerkMiddleware, getAuth, requireAuth } from '@clerk/express'
+import { clerkMiddleware, createClerkClient, getAuth, requireAuth } from '@clerk/express'
 
 import { AnalyticsServiceClient } from './clients';
 
 import * as AnalyticsService from './generated/analytics_service';
 import { ReadingTimespan } from './generated/reading';
+import { supabase } from './db';
+import { Database } from './generated/database.types';
 
 const host = process.env.HOST ?? '0.0.0.0';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 const app = express();
+const clerkClient = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY
+})
 
-app.use(clerkMiddleware())
+app.use(clerkMiddleware({
+  clerkClient
+}))
+app.use(express.json());
 
 app.listen(port, host, () => {
     console.log(`[ ready ] http://${host}:${port}`);
@@ -32,29 +40,35 @@ app.get('/api/users/@me', requireAuth(), async (req, res) => {
 });
 
 app.get('/api/reports', requireAuth(), async (req, res) => {
-  const { userId } = getAuth(req)
-  if (!userId) {
+  const { userId, isAuthenticated } = getAuth(req)
+  if (!isAuthenticated) {
     return res.status(401).send({ 'message': 'Unauthorized' });
   }
 
-  const user = await clerkClient.users.getUser(userId);
+  const { data, error } = await supabase
+    .from('reports')
+    .select('*')
+    .eq('user_id', userId);
+
+  if (error) {
+    console.log("Error fetching reports from database:", error);
+    return res.status(500).send({ 'message': 'Failed to fetch reports' });
+  }
+
+  res.send({ reports: data });
 
   return;
 });
 
 app.post('/api/reports', async (req, res) => {
-  const { userId } = getAuth(req)
-  if (!userId) {
-    return res.status(401).send({ 'message': 'Unauthorized' });
-  }
-
-  const user = await clerkClient.users.getUser(userId);
-  if (!user) {
-    return res.status(401).send({ 'message': 'Unauthorized' });
-  }
-
   console.log("Received /api/reports request with body:", req.body);
+  const auth = getAuth(req)
+  if (!auth.isAuthenticated) {
+    console.log("Unauthorized request to /api/reports.");
+    return res.status(401).send({ 'message': 'Unauthorized' });
+  }
 
+  console.log(req.body);
   const reportRes = await AnalyticsServiceClient.InferSymptomsAndCause(
     AnalyticsService.InferSymptomsAndCauseRequest.create({
       text: req.body.text
@@ -66,6 +80,23 @@ app.post('/api/reports', async (req, res) => {
   if (!reportRes.success) {
     return res.status(400).send({ 'message': 'Failed to analyze symptoms' });
   }
+
+  const { data, error } = await supabase.from('reports').insert({
+    user_id: auth.userId,
+    timestamp: new Date(),
+    symptoms: reportRes.symptoms,
+    cause: reportRes.cause,
+    notes: null,
+    lat: req.body.location?.lat,
+    lon: req.body.location?.lon
+  });
+
+  if (error) {
+    console.log("Error inserting report into database:", error);
+    return res.status(500).send({ 'message': 'Failed to save report' });
+  }
+
+  console.log("Inserted report into database:", data);
 
   res.send(reportRes);
 

@@ -42,7 +42,7 @@ export type GatewayApiSpec = Tspec.DefineApiSpec<{
                 header: {
                     Authorization: string
                 },
-                body: InferSymptomsAndCauseRequest,
+                body: InferSymptomsAndCauseRequest & { location: { lat: number, lon: number } },
                 responses: {
                     200: InferSymptomsAndCauseResponse,
                     400: {

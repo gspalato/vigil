@@ -155,14 +155,31 @@
           "content": {
             "application/json": {
               "schema": {
+                "additionalProperties": false,
                 "type": "object",
                 "properties": {
                   "text": {
                     "type": "string"
+                  },
+                  "location": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lon": {
+                        "type": "number"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "lat",
+                      "lon"
+                    ]
                   }
                 },
-                "additionalProperties": false,
                 "required": [
+                  "location",
                   "text"
                 ]
               }
@@ -363,18 +380,6 @@
           "symptoms",
           "timestamp",
           "userId"
-        ]
-      },
-      "InferSymptomsAndCauseRequest": {
-        "type": "object",
-        "properties": {
-          "text": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": false,
-        "required": [
-          "text"
         ]
       },
       "InferSymptomsAndCauseResponse": {
