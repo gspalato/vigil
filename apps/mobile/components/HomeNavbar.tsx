@@ -16,7 +16,10 @@ import { Link, Redirect, router, Stack, useNavigation } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { useAppTheme } from '@/lib/Theme';
+
 import { GlassView } from './GlassView';
+import { ThemedView } from './ThemedView';
 
 type HomeNavbarProps = {
 	disableLiquidGlass?: boolean;
@@ -25,8 +28,13 @@ type HomeNavbarProps = {
 export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 	const { disableLiquidGlass = false } = props;
 
+	const { theme, themeName } = useAppTheme();
+
+	const glassTint =
+		themeName === 'dark' ? undefined : 'systemChromeMaterialLight';
+
 	return isLiquidGlassAvailable() && !disableLiquidGlass ? (
-		<View
+		<ThemedView
 			style={{
 				flexDirection: 'row',
 				justifyContent: 'center',
@@ -34,10 +42,10 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 				marginHorizontal: 'auto',
 			}}
 		>
-			<GlassContainer style={[styles.toolbar, { gap: 0 }]} spacing={50}>
+			<GlassContainer style={[styles.toolbar, { gap: -10 }]} spacing={50}>
 				<ExpoGlassView
-					style={[styles.toolbar, { width: 50 }]}
-					tintColor='systemChromeMaterialLight'
+					style={[styles.toolbar, { width: 50, marginRight: 0 }]}
+					tintColor={glassTint}
 					isInteractive
 				>
 					<Pressable
@@ -48,12 +56,16 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 						}
 						style={styles.toolbarButton}
 					>
-						<FontAwesome5 name='user-alt' size={18} color='#000c' />
+						<FontAwesome5
+							name='user-alt'
+							size={18}
+							color={theme.colors.textSecondary}
+						/>
 					</Pressable>
 				</ExpoGlassView>
 				<ExpoGlassView
 					style={[styles.toolbar, { width: 50 }]}
-					tintColor='systemChromeMaterialLight'
+					tintColor={glassTint}
 					isInteractive
 				>
 					<Pressable
@@ -64,7 +76,11 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 						}
 						style={styles.toolbarButton}
 					>
-						<FontAwesome6 name='list-ul' size={20} color='#000c' />
+						<FontAwesome6
+							name='list-ul'
+							size={20}
+							color={theme.colors.textSecondary}
+						/>
 					</Pressable>
 				</ExpoGlassView>
 			</GlassContainer>
@@ -77,15 +93,19 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 			>
 				<ExpoGlassView
 					style={[styles.toolbar, { width: 50 }]}
-					tintColor='#ffffffaa'
+					tintColor={glassTint}
 					isInteractive
 				>
-					<FontAwesome6 name='plus' size={24} color='#000c' />
+					<FontAwesome6
+						name='plus'
+						size={24}
+						color={theme.colors.textSecondary}
+					/>
 				</ExpoGlassView>
 			</Pressable>
-		</View>
+		</ThemedView>
 	) : (
-		<View
+		<ThemedView
 			style={{
 				flexDirection: 'row',
 				justifyContent: 'center',
@@ -93,7 +113,7 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 				marginHorizontal: 'auto',
 			}}
 		>
-			<GlassView style={styles.toolbar} tint='systemChromeMaterialLight'>
+			<GlassView style={styles.toolbar}>
 				<Pressable
 					onPress={() =>
 						Haptics.impactAsync(
@@ -102,7 +122,11 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 					}
 					style={styles.toolbarButton}
 				>
-					<FontAwesome5 name='user-alt' size={18} color='#000c' />
+					<FontAwesome5
+						name='user-alt'
+						size={18}
+						color={theme.colors.textSecondary}
+					/>
 				</Pressable>
 				<Pressable
 					onPress={() =>
@@ -112,7 +136,11 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 					}
 					style={styles.toolbarButton}
 				>
-					<FontAwesome6 name='list-ul' size={20} color='#000c' />
+					<FontAwesome6
+						name='list-ul'
+						size={20}
+						color={theme.colors.textSecondary}
+					/>
 				</Pressable>
 			</GlassView>
 			<Pressable
@@ -124,13 +152,16 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = (props) => {
 			>
 				<GlassView
 					style={[styles.toolbar, { width: 50 }]}
-					tint='systemChromeMaterialLight'
 					isInteractive
 				>
-					<FontAwesome6 name='plus' size={24} color='#000c' />
+					<FontAwesome6
+						name='plus'
+						size={24}
+						color={theme.colors.textSecondary}
+					/>
 				</GlassView>
 			</Pressable>
-		</View>
+		</ThemedView>
 	);
 };
 

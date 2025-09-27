@@ -1,28 +1,29 @@
-import { View } from 'moti';
+import { ScrollView } from 'moti';
 import React, { ComponentProps } from 'react';
-import { ColorValue, StyleSheet, useColorScheme } from 'react-native';
+import { ColorValue, StyleSheet, useColorScheme, View } from 'react-native';
 
 import { ThemedProps, useAppTheme } from '@lib/Theme';
 
-type ThemedViewProps = {
+type ThemedScrollViewProps = {
 	thinBorder?: boolean;
 	elevation?: 'transparent' | 'background' | 'surface' | 'raised' | 'overlay';
 } & ThemedProps &
-	ComponentProps<typeof View>;
+	ComponentProps<typeof ScrollView>;
 
-export const ThemedView: React.FC<ThemedViewProps> = (props) => {
+export const ThemedScrollView: React.FC<ThemedScrollViewProps> = (props) => {
 	const {
 		children,
 		style,
+		contentContainerStyle,
 		thinBorder,
-		elevation = 'transparent',
+		elevation = 'background',
 		themeOverride,
 	} = props;
 
 	const { theme } = useAppTheme(themeOverride);
 
 	const mapElevationToBackgroundColor: {
-		[key in NonNullable<ThemedViewProps['elevation']>]: ColorValue;
+		[key in NonNullable<ThemedScrollViewProps['elevation']>]: ColorValue;
 	} = {
 		transparent: 'transparent',
 		background: theme.colors.background,
@@ -32,7 +33,7 @@ export const ThemedView: React.FC<ThemedViewProps> = (props) => {
 	};
 
 	return (
-		<View
+		<ScrollView
 			style={[
 				{
 					backgroundColor: mapElevationToBackgroundColor[elevation],
@@ -41,15 +42,17 @@ export const ThemedView: React.FC<ThemedViewProps> = (props) => {
 				},
 				style,
 			]}
+			contentContainerStyle={contentContainerStyle}
 			animate={{
 				backgroundColor: mapElevationToBackgroundColor[elevation],
 				borderColor: theme.colors.border,
+				borderWidth: thinBorder ? StyleSheet.hairlineWidth : 0,
 			}}
 			transition={{
 				duration: 100,
 			}}
 		>
 			{children}
-		</View>
+		</ScrollView>
 	);
 };

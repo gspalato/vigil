@@ -1,0 +1,37 @@
+{
+	"tabWidth": 4,
+	"useTabs": true,
+	"plugins": ["@trivago/prettier-plugin-sort-imports"],
+	"pluginSearchDirs": false,
+	"jsxSingleQuote": true,
+	"singleQuote": true,
+	"semi": true,
+	"arrowParens": "always",
+	"importOrder": [
+		"^@routes/(.*)$",
+		"^@/routes/(.*)$",
+		"^./routes/(.*)$",
+		"^../routes/(.*)$",
+
+		"^@clients$",
+		"^./clients$",
+		"^../clients$",
+
+		"^@db$",
+		"^./db$",
+		"^../db$",
+
+		"^@generated/(.*)$",
+		"^@/generated/(.*)$",
+		"^./generated/(.*)$",
+		"^../generated/(.*)$",
+
+		"^./(.*).module.css$",
+		"^./(.*)$",
+		"^../(.*)$",
+		"^[./]"
+	],
+	"importOrderCaseInsensitive": true,
+	"importOrderSeparation": true,
+	"importOrderSortSpecifiers": true
+}

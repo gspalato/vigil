@@ -7,17 +7,18 @@ import { useState } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import Animated from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActivityStatus } from '@components/ActivityIndicator';
 import { AiBlob } from '@components/AiBlob';
+import { SplitButtons2 } from '@components/SplitButtons2';
 import { ThemedText } from '@components/ThemedText';
+import { ThemedView } from '@components/ThemedView';
 
-import { SplitButtons2 } from '@/components/SplitButtons2';
+import { ThemedButton } from '@/components/ThemedButton';
+import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
 
 import { useApi } from '@lib/api';
-
-import { Palette } from '@/lib/palette';
+import { Palette } from '@lib/palette';
 
 export default function Page() {
 	const { reportSymptoms } = useApi();
@@ -59,10 +60,9 @@ export default function Page() {
 
 	return (
 		<>
-			<SafeAreaView
+			<ThemedSafeAreaView
 				style={{
 					flex: 1,
-					backgroundColor: Palette.background,
 				}}
 			>
 				<KeyboardAwareScrollView
@@ -76,10 +76,11 @@ export default function Page() {
 						paddingBottom: 0,
 						flexDirection: 'column',
 						gap: 20,
+						backgroundColor: 'transparent',
 					}}
 				>
 					<StatusBar barStyle={'dark-content'} />
-					<View
+					<ThemedView
 						style={{
 							width: '100%',
 							gap: 3,
@@ -96,7 +97,7 @@ export default function Page() {
 						<ThemedText type='title' size='xl'>
 							How are you feeling today?
 						</ThemedText>
-					</View>
+					</ThemedView>
 					<TextField isRequired style={{ width: '100%' }}>
 						<TextField.Input
 							placeholder='Describe your symptoms, you can define their intensity as well.'
@@ -105,97 +106,11 @@ export default function Page() {
 							onChangeText={setText}
 						/>
 					</TextField>
-					<SplitButtons2
-						style={{ width: '100%', marginTop: 'auto' }}
-						splitted={status === 'idle'}
-						gap={10}
-						offsetMultiplier={0.3}
-						leftButton={(style) => (
-							<Animated.View
-								style={[
-									{
-										width: 0,
-										position: 'absolute',
-										left: 0,
-										bottom: 0,
-									},
-									style,
-								]}
-							>
-								<Button
-									variant='secondary'
-									size='md'
-									style={{
-										borderRadius: 50,
-										width: '100%',
-										right: 0,
-									}}
-									onPress={() => router.back()}
-								>
-									<Button.StartContent>
-										<Ionicons
-											name='chevron-back'
-											size={18}
-											color={'#000'}
-										/>
-									</Button.StartContent>
-									<Button.LabelContent>
-										<ThemedText
-											style={{
-												fontSize: 15,
-												color: '#000',
-											}}
-											type='button'
-										>
-											Back
-										</ThemedText>
-									</Button.LabelContent>
-								</Button>
-							</Animated.View>
-						)}
-						rightButton={(style) => (
-							<Animated.View
-								style={[
-									{
-										width: 0,
-										position: 'absolute',
-										right: 0,
-										bottom: 0,
-									},
-									style,
-								]}
-							>
-								<Button
-									variant='primary'
-									size='md'
-									style={{
-										borderRadius: 50,
-										width: '100%',
-									}}
-									onPress={analyze}
-								>
-									<Button.LabelContent>
-										<ThemedText
-											style={{
-												fontSize: 15,
-												color: '#fff',
-											}}
-											type='button'
-										>
-											Analyze
-										</ThemedText>
-									</Button.LabelContent>
-									<Button.EndContent>
-										<Ionicons
-											name='chevron-forward'
-											size={18}
-											color={'#fff'}
-										/>
-									</Button.EndContent>
-								</Button>
-							</Animated.View>
-						)}
-					/>
+					<ThemedButton onPress={analyze}>
+						<ThemedText size='sm' type='button'>
+							Analyze
+						</ThemedText>
+					</ThemedButton>
 					{/*
 					<View
 						style={{
@@ -258,7 +173,7 @@ export default function Page() {
 					</View>
           		*/}
 				</KeyboardAwareScrollView>
-			</SafeAreaView>
+			</ThemedSafeAreaView>
 		</>
 	);
 }
@@ -266,7 +181,6 @@ export default function Page() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#fff',
 		alignItems: 'center',
 		justifyContent: 'flex-end',
 		paddingBottom: 64,

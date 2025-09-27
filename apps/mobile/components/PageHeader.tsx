@@ -8,6 +8,8 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppTheme } from '@/lib/Theme';
+
 import { GlassView } from './GlassView';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
@@ -20,6 +22,7 @@ export const PageHeader: React.FC<PageHeaderProps> = (props) => {
 	const { children, title } = props;
 
 	const safeAreaInsets = useSafeAreaInsets();
+	const { theme } = useAppTheme();
 
 	return (
 		<ThemedView
@@ -43,14 +46,14 @@ export const PageHeader: React.FC<PageHeaderProps> = (props) => {
 						<Ionicons
 							name='arrow-back-outline'
 							size={24}
-							color='#000000'
+							color={theme.colors.textPrimary}
 						/>
 					</GlassView>
 				) : (
 					<Ionicons
 						name='arrow-back-outline'
 						size={24}
-						color='#000000'
+						color={theme.colors.textPrimary}
 					/>
 				)}
 			</Pressable>
@@ -68,14 +71,13 @@ const styles = StyleSheet.create({
 		justifyContent: 'flex-start',
 		alignItems: 'center',
 		flexDirection: 'row',
-		backgroundColor: '#ffffff',
 		paddingBottom: 10,
 		gap: 10,
 	},
 	title: {
 		fontWeight: 'bold',
-		color: '#000000',
 		fontFamily: 'InstrumentSerif_400Regular',
+		letterSpacing: -0.5,
 		fontSize: 48,
 		paddingLeft: 5,
 		paddingRight: 5,

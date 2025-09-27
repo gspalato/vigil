@@ -6,6 +6,131 @@
   },
   "openapi": "3.0.3",
   "paths": {
+    "/api/internal/readings": {
+      "post": {
+        "operationId": "GatewayApiSpec_post_/api/internal/readings",
+        "tags": [],
+        "summary": "Trigger a reading analysis job.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "timespan": {
+                    "$ref": "#/components/schemas/ReadingTimespan",
+                    "description": "How recent the data must be (in hours)."
+                  },
+                  "similarity": {
+                    "description": "The similarity might be a common symptom or cause. If null, calculates the general incidence of symptoms.",
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "timespan"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reading": {
+                      "$ref": "#/components/schemas/Reading"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "reading"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "enum": [
+                        "Unauthorized"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "enum": [
+                        "Forbidden"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/reports": {
       "get": {
         "operationId": "GatewayApiSpec_get_/api/reports",
@@ -289,6 +414,158 @@
   },
   "components": {
     "schemas": {
+      "CalculateReadingRequest": {
+        "type": "object",
+        "properties": {
+          "timespan": {
+            "$ref": "#/components/schemas/ReadingTimespan",
+            "description": "How recent the data must be (in hours)."
+          },
+          "similarity": {
+            "description": "The similarity might be a common symptom or cause. If null, calculates the general incidence of symptoms.",
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "timespan"
+        ]
+      },
+      "ReadingTimespan": {
+        "type": "number",
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          -1
+        ]
+      },
+      "Reading": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "clusters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Cluster"
+            }
+          },
+          "similarity": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "heatmapPoints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HeatmapPoint"
+            }
+          },
+          "rangeFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "rangeTo": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timespan": {
+            "$ref": "#/components/schemas/ReadingTimespan"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "clusters",
+          "createdAt",
+          "heatmapPoints",
+          "id",
+          "rangeFrom",
+          "rangeTo",
+          "similarity",
+          "timespan"
+        ]
+      },
+      "Cluster": {
+        "type": "object",
+        "properties": {
+          "clusterId": {
+            "description": "UUID",
+            "type": "string"
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Location"
+            }
+          },
+          "centroid": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "area": {
+            "description": "In square kilometers",
+            "type": "number"
+          },
+          "density": {
+            "type": "number"
+          },
+          "isNoise": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "area",
+          "centroid",
+          "clusterId",
+          "density",
+          "isNoise",
+          "points"
+        ]
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number"
+          },
+          "lon": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "lat",
+          "lon"
+        ]
+      },
+      "HeatmapPoint": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "intensity": {
+            "type": "number"
+          },
+          "radius": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "intensity",
+          "location",
+          "radius"
+        ]
+      },
       "SymptomReport": {
         "description": "Represents a single symptom report from a user",
         "type": "object",
@@ -396,42 +673,6 @@
           "createdAt",
           "id",
           "points"
-        ]
-      },
-      "HeatmapPoint": {
-        "type": "object",
-        "properties": {
-          "location": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "intensity": {
-            "type": "number"
-          },
-          "radius": {
-            "type": "number"
-          }
-        },
-        "additionalProperties": false,
-        "required": [
-          "intensity",
-          "location",
-          "radius"
-        ]
-      },
-      "Location": {
-        "type": "object",
-        "properties": {
-          "lat": {
-            "type": "number"
-          },
-          "lon": {
-            "type": "number"
-          }
-        },
-        "additionalProperties": false,
-        "required": [
-          "lat",
-          "lon"
         ]
       }
     }

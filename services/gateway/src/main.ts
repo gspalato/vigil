@@ -1,50 +1,54 @@
-import "dotenv/config";
-import express, { Request, Response } from "express";
-import * as core from "express-serve-static-core";
 import {
-  clerkMiddleware,
-  createClerkClient,
-  getAuth,
-  requireAuth,
-} from "@clerk/express";
+	clerkMiddleware,
+	createClerkClient,
+	getAuth,
+	requireAuth,
+} from '@clerk/express';
+import 'dotenv/config';
+import express, { Request, Response } from 'express';
 
-import { AnalyticsServiceClient } from "./clients";
+import * as HeatmapRoutes from './routes/heatmap';
+import * as InternalRoutes from './routes/internal';
+import * as ReportRoutes from './routes/reports';
 
-import * as AnalyticsService from "./generated/analytics_service";
-import { ReadingTimespan } from "./generated/reading";
-import { supabase } from "./db";
-import { Database } from "./generated/database.types";
+import { clerkClient } from './clerk';
 
-const host = process.env.HOST ?? "0.0.0.0";
+const host = process.env.HOST ?? '0.0.0.0';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 const app = express();
-const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
-});
 
 app.use(
-  clerkMiddleware({
-    clerkClient,
-    publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
-  })
+	clerkMiddleware({
+		clerkClient,
+		publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+	}),
 );
 app.use(express.json());
 
 app.listen(port, host, () => {
-  console.log(`[ ready ] http://${host}:${port}`);
+	console.log(`[ ready ] http://${host}:${port}`);
 });
 
+ReportRoutes.build(app);
+HeatmapRoutes.build(app);
+InternalRoutes.build(app);
+
+/*
 app.get("/api/reports", async (req, res) => {
   const auth = getAuth(req);
   console.log("Auth object:", auth);
   console.log("Headers:", req.headers);
-  
+
   // Handle pending sessions - they're valid but not fully activated
-  if (!auth.userId || (auth.sessionStatus !== 'active' && auth.sessionStatus !== 'pending')) {
+  if (
+    !auth.userId ||
+    (auth.sessionStatus !== "active" && auth.sessionStatus !== "pending")
+  ) {
     console.log("Unauthorized request to /api/reports. Auth status:", auth);
     return res.status(401).send({ message: "Unauthorized" });
-  }  const { data, error } = await supabase
+  }
+  const { data, error } = await supabase
     .from("reports")
     .select("*")
     .eq("user_id", auth.userId);
@@ -62,9 +66,12 @@ app.get("/api/reports", async (req, res) => {
 app.post("/api/reports", async (req, res) => {
   console.log("Received /api/reports request with body:", req.body);
   const auth = getAuth(req);
-  
+
   // Handle pending sessions - they're valid but not fully activated
-  if (!auth.userId || (auth.sessionStatus !== 'active' && auth.sessionStatus !== 'pending')) {
+  if (
+    !auth.userId ||
+    (auth.sessionStatus !== "active" && auth.sessionStatus !== "pending")
+  ) {
     console.log("Unauthorized request to /api/reports. Auth status:", auth);
     return res.status(401).send({ message: "Unauthorized" });
   }
@@ -105,8 +112,7 @@ app.post("/api/reports", async (req, res) => {
 });
 
 app.get(
-  "/api/heatmap",
-  /*requireAuth(),*/ async (req, res) => {
+  "/api/heatmap", async (req, res) => {
     //const { userId } = getAuth(req)
     //if (!userId) {
     //  return res.status(401).send({ 'message': 'Unauthorized' });
@@ -163,3 +169,4 @@ app.get(
     return;
   }
 );
+*/

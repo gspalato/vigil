@@ -56,7 +56,8 @@ export const GitHubHeatmap = ({
 
 const styles = StyleSheet.create({
 	appContainer: {
-		flex: 1,
+		width: '100%',
+		height: 'auto',
 		backgroundColor: 'transparent',
 		justifyContent: 'center',
 		alignItems: 'center',

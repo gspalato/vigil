@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Icon } from './Logomark';
 import { Pinger } from './Pinger';
 import { ThemedText } from './ThemedText';
 
@@ -19,7 +20,13 @@ export const HomeHeader: React.FC<HomeHeaderProps> = (props) => {
 			id='header'
 			style={[styles.container, { paddingTop: safeAreaInsets.top }]}
 		>
-			<Text style={styles.appName}>Vigil</Text>
+			<View
+				id='left-side-menu'
+				style={{ flexDirection: 'row', alignItems: 'center' }}
+			>
+				<Icon style={{ width: 32, height: 32 }} fill={'#fff'} />
+				<Text style={styles.appName}>Vigil</Text>
+			</View>
 			<View
 				id='right-side-menu'
 				style={{
@@ -56,6 +63,7 @@ const styles = StyleSheet.create({
 		fontWeight: 'bold',
 		color: '#ffffff',
 		fontFamily: 'InstrumentSerif_400Regular',
+		letterSpacing: -0.5,
 		fontSize: 48,
 		//textShadowColor: "#00000066",
 		//textShadowOffset: {

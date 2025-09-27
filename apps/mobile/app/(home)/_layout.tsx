@@ -1,13 +1,24 @@
 import { useAuth } from '@clerk/clerk-expo';
 import { Redirect, Stack } from 'expo-router';
 
+import { useAppTheme } from '@lib/Theme';
+
 export default function HomeLayout() {
-	const { isSignedIn } = useAuth();
+	const { theme } = useAppTheme();
 
-	if (isSignedIn) {
-		console.log('HomeLayout detected user is signed in via Clerk.');
-		return <Redirect href='/(home)' />;
-	}
-
-	return <Stack screenOptions={{ headerShown: false }} />;
+	return (
+		<Stack
+			screenOptions={{
+				headerShown: false,
+				contentStyle: { backgroundColor: theme.colors.background },
+			}}
+		>
+			<Stack.Screen
+				name='membership_ticket'
+				options={{
+					presentation: 'transparentModal',
+				}}
+			/>
+		</Stack>
+	);
 }

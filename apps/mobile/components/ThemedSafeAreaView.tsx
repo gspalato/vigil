@@ -1,16 +1,18 @@
-import { View } from 'moti';
+import { SafeAreaView, View } from 'moti';
 import React, { ComponentProps } from 'react';
 import { ColorValue, StyleSheet, useColorScheme } from 'react-native';
 
 import { ThemedProps, useAppTheme } from '@lib/Theme';
 
-type ThemedViewProps = {
+type ThemedSafeAreaViewProps = {
 	thinBorder?: boolean;
 	elevation?: 'transparent' | 'background' | 'surface' | 'raised' | 'overlay';
 } & ThemedProps &
 	ComponentProps<typeof View>;
 
-export const ThemedView: React.FC<ThemedViewProps> = (props) => {
+export const ThemedSafeAreaView: React.FC<ThemedSafeAreaViewProps> = (
+	props,
+) => {
 	const {
 		children,
 		style,
@@ -22,7 +24,7 @@ export const ThemedView: React.FC<ThemedViewProps> = (props) => {
 	const { theme } = useAppTheme(themeOverride);
 
 	const mapElevationToBackgroundColor: {
-		[key in NonNullable<ThemedViewProps['elevation']>]: ColorValue;
+		[key in NonNullable<ThemedSafeAreaViewProps['elevation']>]: ColorValue;
 	} = {
 		transparent: 'transparent',
 		background: theme.colors.background,
@@ -32,7 +34,7 @@ export const ThemedView: React.FC<ThemedViewProps> = (props) => {
 	};
 
 	return (
-		<View
+		<SafeAreaView
 			style={[
 				{
 					backgroundColor: mapElevationToBackgroundColor[elevation],
@@ -50,6 +52,6 @@ export const ThemedView: React.FC<ThemedViewProps> = (props) => {
 			}}
 		>
 			{children}
-		</View>
+		</SafeAreaView>
 	);
 };

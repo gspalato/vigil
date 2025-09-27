@@ -94,23 +94,24 @@ export default function Page() {
 	return (
 		<>
 			<StatusBar barStyle='dark-content' />
-			<View style={styles.page}>
+			<ThemedView style={styles.page}>
 				<PageHeader title='History' />
-				<View style={{ flex: 1, paddingHorizontal: 20 }}>
+				<ThemedView style={{ flex: 1 }}>
 					<FlashList
 						style={{ flex: 1 }}
 						ListHeaderComponent={<View style={{ height: 20 }} />} // space at top
 						ListFooterComponent={<View style={{ height: 20 }} />} // space at bottom
 						data={reports}
 						renderItem={({ item, index }) => (
-							<View
+							<ThemedView
 								style={{
 									padding: 15,
 									paddingBottom:
 										index === reports.length - 1 ? 25 : 15,
 
+									marginHorizontal: 20,
+
 									borderBottomWidth: StyleSheet.hairlineWidth,
-									borderBottomColor: Palette.border,
 									gap: 3,
 									backgroundColor: '#fff',
 
@@ -126,10 +127,8 @@ export default function Page() {
 										index === reports.length - 1
 											? borderRadius.dp
 											: 0,
-
-									borderColor: Palette.border,
-									borderWidth: StyleSheet.hairlineWidth,
 								}}
+								thinBorder
 							>
 								<ThemedText
 									type='title'
@@ -164,11 +163,11 @@ export default function Page() {
 										item.timestamp,
 									).toLocaleDateString()}
 								</ThemedText>
-							</View>
+							</ThemedView>
 						)}
 					/>
-				</View>
-			</View>
+				</ThemedView>
+			</ThemedView>
 		</>
 	);
 }

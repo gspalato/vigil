@@ -17,6 +17,7 @@ import { HomeHeader } from '@/components/HomeHeader';
 import { HomeNavbar } from '@/components/HomeNavbar';
 
 import { useApi } from '@lib/api';
+import { useAppTheme } from '@lib/Theme';
 import {
 	getApproximateScreenCornerRadius,
 	useGoogleMapIosPerfFix,
@@ -24,6 +25,7 @@ import {
 
 export default function Page() {
 	const { user } = useUser();
+	const { themeName } = useAppTheme();
 
 	const [alertCount, setAlertCount] = useState<number>(0);
 
@@ -57,6 +59,11 @@ export default function Page() {
 		})();
 	}, []);
 
+	const googleMapsTheme =
+		themeName === 'dark'
+			? 'd6f5630a06421fd4d6705cde'
+			: 'd6f5630a06421fd44ad483f1';
+
 	return (
 		<>
 			<StatusBar style='light' />
@@ -64,14 +71,14 @@ export default function Page() {
 				<HomeHeader alertCount={alertCount} />
 				<MapView
 					provider={PROVIDER_GOOGLE}
-					googleMapId='d6f5630a06421fd44ad483f1'
+					googleMapId={'d6f5630a06421fd4d6705cde'}
 					style={styles.map}
-					//userInterfaceStyle="dark"
 					initialRegion={initialRegion ?? undefined}
 					region={initialRegion ?? undefined}
 					showsUserLocation
 					followsUserLocation
 					onPanDrag={() => {}} // Fix for low framerate when interacting with the map on iOS.
+					key={googleMapsTheme}
 				>
 					<Heatmap points={heatmapPoints as any} />
 				</MapView>

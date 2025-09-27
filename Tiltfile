@@ -58,6 +58,7 @@ k8s_resource(workload='headlamp', port_forwards='8080:4466')
 
 # Deploy ngrok
 k8s_yaml([
+  'infra/k8s/ngrok.namespace.yaml',
   'infra/k8s/ngrok.ingress.yaml',
   'infra/k8s/ngrok.secrets.yaml'
 ])

@@ -180,17 +180,20 @@ const markdownStyles = StyleSheet.create({
 		fontSize: 24,
 		marginBottom: 12,
 		color: '#000',
+		letterSpacing: -0.5,
 	},
 	heading2: {
 		fontFamily: 'InstrumentSerif_400Regular',
 		fontSize: 20,
 		marginBottom: 10,
 		color: '#000',
+		letterSpacing: -0.5,
 	},
 	heading3: {
 		fontFamily: 'InstrumentSerif_400Regular',
 		fontSize: 18,
 		marginBottom: 8,
 		color: '#000',
+		letterSpacing: -0.5,
 	},
 });

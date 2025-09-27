@@ -1,25 +1,28 @@
 {
-  "name": "gateway",
-  "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "build": "tsc && tsc-alias && tspec generate",
-    "openapi-gen": "tspec generate",
-    "supabase-gen": "supabase gen types typescript --project-id wbllhbbknqdczakvokxd > src/generated/database.types.ts"
-  },
-  "dependencies": {
-    "@bufbuild/protobuf": "^2.7.0",
-    "@clerk/express": "^1.7.26",
-    "@grpc/grpc-js": "^1.13.4",
-    "@supabase/supabase-js": "^2.58.0",
-    "dotenv": "^17.2.1",
-    "express": "^4.21.2",
-    "supabase": "^2.39.2",
-    "tspec": "^0.1.116"
-  },
-  "devDependencies": {
-    "@types/express": "^5.0.3",
-    "tsc-alias": "^1.8.16",
-    "typescript": "^5.9.2"
-  }
+	"name": "gateway",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "tsc && tsc-alias && tspec generate",
+		"openapi-gen": "tspec generate",
+		"supabase-gen": "supabase gen types typescript --project-id wbllhbbknqdczakvokxd > src/generated/database.types.ts"
+	},
+	"dependencies": {
+		"@bufbuild/protobuf": "^2.7.0",
+		"@clerk/express": "^1.7.26",
+		"@grpc/grpc-js": "^1.13.4",
+		"@supabase/supabase-js": "^2.58.0",
+		"dotenv": "^17.2.1",
+		"express": "^4.21.2",
+		"supabase": "^2.39.2",
+		"tspec": "^0.1.116"
+	},
+	"devDependencies": {
+		"@trivago/prettier-plugin-sort-imports": "^5.2.2",
+		"@types/express": "^5.0.3",
+		"prettier": "^3.6.2",
+		"tsc-alias": "^1.8.16",
+		"typescript": "^5.9.2"
+	}
 }

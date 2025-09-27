@@ -18,17 +18,26 @@ import {
 	Unbounded_800ExtraBold,
 	Unbounded_900Black,
 } from '@expo-google-fonts/unbounded';
+import {
+	ZalandoSansExpanded_400Regular,
+	ZalandoSansExpanded_500Medium,
+	ZalandoSansExpanded_600SemiBold,
+} from '@expo-google-fonts/zalando-sans-expanded';
 import { useFonts } from 'expo-font';
-import { Slot, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { HeroUINativeProvider } from 'heroui-native';
 import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { interpolate } from 'react-native-reanimated';
+import Transition from 'react-native-screen-transitions';
+
+import { TransitionStack } from '@components/TransitionStack';
 
 import { VigilAPIContextType, VigilAPIProvider } from '@lib/api';
-
-import { InferSymptomsAndCauseResponse } from '@/lib/generated/api';
+import { InferSymptomsAndCauseResponse } from '@lib/generated/api';
+import { AppThemeProvider, useAppTheme } from '@lib/Theme';
 
 import '../global.css';
 
@@ -48,6 +57,9 @@ export default function RootLayout() {
 		Inter_800ExtraBold,
 		Unbounded_800ExtraBold,
 		Unbounded_900Black,
+		ZalandoSansExpanded_400Regular,
+		ZalandoSansExpanded_500Medium,
+		ZalandoSansExpanded_600SemiBold,
 	});
 
 	useEffect(() => {
@@ -63,14 +75,31 @@ export default function RootLayout() {
 	return (
 		<ClerkProvider tokenCache={tokenCache}>
 			<VigilAPIProvider>
-				<HeroUINativeProvider>
-					<GestureHandlerRootView>
-						<KeyboardProvider>
-							<Stack screenOptions={{ headerShown: false }} />
-						</KeyboardProvider>
-					</GestureHandlerRootView>
-				</HeroUINativeProvider>
+				<AppThemeProvider>
+					<HeroUINativeProvider>
+						<GestureHandlerRootView>
+							<KeyboardProvider>
+								<RootLayoutNav />
+							</KeyboardProvider>
+						</GestureHandlerRootView>
+					</HeroUINativeProvider>
+				</AppThemeProvider>
 			</VigilAPIProvider>
 		</ClerkProvider>
+	);
+}
+
+function RootLayoutNav() {
+	const { theme } = useAppTheme();
+
+	return (
+		<Stack
+			screenOptions={{
+				headerShown: false,
+				contentStyle: {
+					backgroundColor: theme.colors.background,
+				},
+			}}
+		/>
 	);
 }
