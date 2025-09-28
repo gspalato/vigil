@@ -12,8 +12,14 @@ message HeatmapPoint {
     float    radius    = 3;
 }
 
+message HeatmapArea {
+    repeated Location vertices  = 1;
+    float             intensity = 2;
+}
+
 message GeneratedHeatmap {
     int32                     id         = 1;
     google.protobuf.Timestamp created_at = 2;
     repeated HeatmapPoint     points     = 3;
+    repeated HeatmapArea      areas      = 4;
 }

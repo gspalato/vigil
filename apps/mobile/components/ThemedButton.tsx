@@ -28,19 +28,9 @@ export const ThemedButton: React.FC<ButtonProps> = ({
 
 	const [isBeingPressed, setIsBeingPressed] = useState(false);
 
-	const viewAnimationStyle = useAnimatedStyle(() => {
-		return {
-			transform: [
-				{
-					scale: isBeingPressed ? 0.95 : 1,
-				},
-			],
-		};
-	});
-
 	return (
 		<Pressable
-			style={[{}, pressableStyle]}
+			style={[{ backgroundColor: 'transparent' }, pressableStyle]}
 			onPressIn={() => setIsBeingPressed(true)}
 			onPressOut={() => setIsBeingPressed(false)}
 			onPress={onPress}
@@ -64,7 +54,7 @@ export const ThemedButton: React.FC<ButtonProps> = ({
 					borderColor: theme.colors.border,
 				}}
 				transition={{
-					duration: 100,
+					duration: theme.durations.themeTransition,
 				}}
 			>
 				{children}

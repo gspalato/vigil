@@ -69,7 +69,7 @@ async def fetch_reports(timespan: reading_pb2.ReadingTimespan | None, similarity
         logging.error("Error fetching reports:", e)
         return [], (None, None)
 
-async def fetch_heatmap(timespan: reading_pb2.ReadingTimespan | None, similarity: list[str] | None) -> list[heatmap_pb2.HeatmapPoint]:
+async def fetch_heatmap_data(timespan: reading_pb2.ReadingTimespan | None, similarity: list[str] | None) -> list[heatmap_pb2.HeatmapPoint]:
     """
         Fetch heatmap data from the database.
         If no time is defined, fetch the data from the most recent reading.
@@ -94,13 +94,14 @@ async def fetch_heatmap(timespan: reading_pb2.ReadingTimespan | None, similarity
             logging.debug("No readings found matching query.")
             return []
 
-        heatmap_points = result.data.heatmap_points
+        heatmap_points = result.data.get('heatmap_points', [])
+        geojson_str = result.data.get('geojson', None)
         logging.debug("Found %d heatmap points" % len(heatmap_points))
 
-        return heatmap_points
+        return (heatmap_points, geojson_str)
     except Exception as e:
         logging.error("Error fetching heatmap:", e)
-        return []
+        return ([], None)
 
 async def insert_reading(reading: reading_pb2.Reading) -> bool:
     # Insert the reading into the database.

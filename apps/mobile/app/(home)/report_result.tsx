@@ -1,18 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
-import { StackActions, useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Button } from 'heroui-native';
 import { MotiView } from 'moti';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ScrollView, StatusBar, StyleSheet, View } from 'react-native';
-import Markdown, {
-	ASTNode,
-	MarkdownIt,
-	stringToTokens,
-	tokensToAST,
-} from 'react-native-markdown-display';
+import Markdown from 'react-native-markdown-display';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AiBlob } from '@components/AiBlob';
@@ -20,8 +12,6 @@ import { ThemedText } from '@components/ThemedText';
 
 import { Palette } from '@lib/palette';
 import { capitalizeFirstLetter } from '@lib/utils';
-
-const markdownItInstance = MarkdownIt({ typographer: true });
 
 export default function Page() {
 	let { result } = useLocalSearchParams();
@@ -109,9 +99,7 @@ For example, instead of saying "I feel bad", you could say "I have a headache an
 						sharedTransitionTag='aiblob'
 					/>
 					<ThemedText type='title' size='xl'>
-						{parsedResult.success
-							? "Here's what I got"
-							: "I couldn't analyze that"}
+						{title}
 					</ThemedText>
 				</View>
 				<MotiView

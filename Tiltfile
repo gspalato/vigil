@@ -4,24 +4,12 @@ load('ext://helm_resource', 'helm_resource', 'helm_repo')
 # Generate protos.
 local_resource('_protogen', 'make all', deps=['proto'])
 
-# Generate OpenAPI specs and clients.
-local_resource('_openapigen', 'make openapi-ts', deps=['_protogen'])
-
 # Build service images.
 
 docker_build(
   "unreaalism/vigil-analytics",
   "services/analytics",
   build_args={'NO_CACHE':'1'},
-  #dockerfile='./services/analytics/Dockerfile',
-  #only=['./services/analytics'],
-  #live_update=[
-  #    sync('./services/analytics', '/app/'),
-  #    run(
-  #        'pip install -r /app/requirements.txt',
-  #        trigger=['./services/analytics/requirements.txt']
-  #    )
-  #]
 )
 docker_build("unreaalism/vigil-digest", "services/digest")
 docker_build("unreaalism/vigil-gateway", "services/gateway")

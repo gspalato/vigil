@@ -9,8 +9,8 @@ export function build(app: Express) {
 	app.get(
 		'/api/heatmap',
 		/*requireAuth(),*/ async (req, res) => {
-			//const { userId } = getAuth(req)
-			//if (!userId) {
+			//const { isAuthenticated } = getAuth(req)
+			//if (!isAuthenticated) {
 			//  return res.status(401).send({ 'message': 'Unauthorized' });
 			//}
 
@@ -55,14 +55,20 @@ export function build(app: Express) {
 				}
 			}
 
-			const fetchRes = await AnalyticsServiceClient.FetchHeatmap(
-				AnalyticsService.FetchHeatmapRequest.create({
-					timespan: timespan,
-					similarity: similarity,
-				}),
-			);
+			try {
+				const fetchRes = await AnalyticsServiceClient.FetchHeatmap(
+					AnalyticsService.FetchHeatmapRequest.create({
+						timespan: timespan,
+						similarity: similarity,
+					}),
+				);
 
-			res.send(fetchRes);
+				console.log('FetchHeatmap response:', fetchRes);
+				res.send(fetchRes);
+			} catch (error) {
+				console.error('Error processing /api/heatmap request:', error);
+				return res.status(400).send({ message: 'Bad Request' });
+			}
 
 			return;
 		},

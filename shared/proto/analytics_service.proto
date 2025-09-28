@@ -38,5 +38,6 @@ message FetchHeatmapRequest {
 }
 
 message FetchHeatmapResponse {
-    repeated GeneratedHeatmap heatmapPoints = 1;
+    repeated HeatmapPoint heatmap_points = 1;
+    string                geojson        = 2; // GeoJSON representation of heatmap areas
 }

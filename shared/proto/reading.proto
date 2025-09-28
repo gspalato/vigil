@@ -23,4 +23,6 @@ message Reading {
     google.protobuf.Timestamp range_from     = 6;
     google.protobuf.Timestamp range_to       = 7;
     ReadingTimespan           timespan       = 8;
+    repeated HeatmapArea      heatmap_areas  = 9;
+    string                    geojson        = 10; // GeoJSON representation of heatmap areas
 }

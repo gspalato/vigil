@@ -2,7 +2,10 @@ import math
 
 import numpy as np
 from scipy.spatial import ConvexHull
-from shapely import MultiPoint, Point, Polygon, transform
+from shapely.geometry import Point
+from shapely.ops import unary_union
+from shapely.geometry.polygon import Polygon
+from scipy.interpolate import splprep, splev
 from pyproj import Transformer
 
 from generated import location_pb2
@@ -67,11 +70,8 @@ def cluster_area(points: list[location_pb2.Location]):
     if len(unique_points) < 3:
         raise ValueError("At least 3 unique points are required to calculate an area")
     
-    # Calculate convex hull
-    hull = ConvexHull(unique_points)
-    
-    # Get hull vertices in order
-    hull_vertices = unique_points[hull.vertices]
+    #  Get smoothed convex hull of the points.
+    hull_vertices = spline_smooth_cluster_region(unique_points)
     
     # Calculate area using shoelace formula (result in m²)
     area_m2 = calculate_polygon_area(hull_vertices)
@@ -89,3 +89,32 @@ def cluster_area(points: list[location_pb2.Location]):
     centroid_location = location_pb2.Location(lat=centroid_lat, lon=centroid_lon)
 
     return area_km2, centroid_location
+
+def spline_smooth_cluster_region(points: list[location_pb2.Location], num_points: int = 200) -> list[location_pb2.Location]:
+    """
+    Given a list of lat/lon points, return a smoothed polygon using spline interpolation.
+    
+    Args:
+        points: List of Location objects with lat and lon attributes
+        num_points: Number of points to generate along the smoothed curve
+    
+    Returns:
+        List of Location objects representing the smoothed polygon
+    """
+
+    # Create buffered circles around points
+    radius_deg = 0.005
+    circles = [Point(p.lon, p.lat).buffer(radius_deg) for p in points]
+    unioned = unary_union(circles)
+    hull: Polygon = unioned.convex_hull
+
+    # Extract hull coordinates
+    x, y = hull.exterior.xy
+    coords = np.array([x, y])
+
+    # Spline smoothing
+    tck, u = splprep(coords, s=0.001, per=True)
+    spline_points = splev(np.linspace(0, 1, 200), tck)  # 200 points along curve
+
+    smoothed_locations = [location_pb2.Location(lat=lat, lon=lon) for lon, lat in zip(spline_points[0], spline_points[1])]
+    return smoothed_locations

@@ -14,13 +14,18 @@
 		"@grpc/grpc-js": "^1.13.4",
 		"@supabase/supabase-js": "^2.58.0",
 		"dotenv": "^17.2.1",
-		"express": "^4.21.2",
+		"express": "^5.1.0",
+		"express-zod-api": "^25.5.1",
+		"http-errors": "^2.0.0",
 		"supabase": "^2.39.2",
-		"tspec": "^0.1.116"
+		"tspec": "^0.1.116",
+		"zod": "^4.1.11"
 	},
 	"devDependencies": {
 		"@trivago/prettier-plugin-sort-imports": "^5.2.2",
 		"@types/express": "^5.0.3",
+		"@types/http-errors": "^2.0.5",
+		"@types/node": "^24.5.2",
 		"prettier": "^3.6.2",
 		"tsc-alias": "^1.8.16",
 		"typescript": "^5.9.2"

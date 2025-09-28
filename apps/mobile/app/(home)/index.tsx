@@ -5,9 +5,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import { Link, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import GeoJSON from 'geojson';
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import MapView, { Heatmap, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import MapView, {
+	Heatmap,
+	Polyline,
+	PROVIDER_GOOGLE,
+	Region,
+} from 'react-native-maps';
 import {
 	SafeAreaView,
 	useSafeAreaInsets,
@@ -29,9 +35,9 @@ export default function Page() {
 
 	const [alertCount, setAlertCount] = useState<number>(0);
 
-	const { heatmapPoints, fetchHeatmapPoints } = useApi();
+	const { heatmapPoints, fetchHeatmapData } = useApi();
 	useEffect(() => {
-		fetchHeatmapPoints({ timespan: 'MONTH' });
+		fetchHeatmapData({ timespan: 'MONTH' });
 	}, []);
 
 	useGoogleMapIosPerfFix();
@@ -78,9 +84,27 @@ export default function Page() {
 					showsUserLocation
 					followsUserLocation
 					onPanDrag={() => {}} // Fix for low framerate when interacting with the map on iOS.
-					key={googleMapsTheme}
+					key={'a'}
 				>
-					<Heatmap points={heatmapPoints as any} />
+					<Heatmap
+						points={heatmapPoints.map((p) => ({
+							latitude: p.location.lat,
+							longitude: p.location.lon,
+							weight: p.intensity,
+						}))}
+						radius={50}
+						gradient={{
+							colors: [
+								'#0000ff',
+								'#00ff00',
+								'#ffff00',
+								'#ff0000',
+							], // blue → green → yellow → red
+							startPoints: [0.1, 0.3, 0.6, 1], // positions along gradient
+							colorMapSize: 256,
+						}}
+						opacity={0.9}
+					/>
 				</MapView>
 			</View>
 			<MaskedView

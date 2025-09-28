@@ -50,6 +50,9 @@ export const LightTheme = {
 		abyssBlue: '#2b396d',
 		silverMist: '#e4e4e4',
 	},
+	durations: {
+		themeTransition: 100,
+	},
 };
 
 export type Theme = typeof LightTheme;

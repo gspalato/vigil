@@ -23,6 +23,8 @@ import Svg, {
 	LinearGradient as SvgLinearGradient,
 } from 'react-native-svg';
 
+import { Icon } from '../Logomark';
+
 export const BackSide = () => {
 	return (
 		<View
@@ -108,7 +110,7 @@ export const BackSide = () => {
 				}}
 				color='#111'
 				logoAreaSize={60}
-				logo={SpxlatoStarLogoSvg}
+				logo={<Icon style={{ width: 50, height: 50 }} fill={'#222'} />}
 			>
 				<RadialGradient
 					c={{ x: 100, y: 100 }}

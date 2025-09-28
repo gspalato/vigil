@@ -6,21 +6,16 @@ import { Link, router, useRouter } from 'expo-router';
 import { TextField, TextFieldInputColors } from 'heroui-native';
 import { AnimatePresence, Image, MotiView } from 'moti';
 import React, { useEffect, useState } from 'react';
-import {
-	KeyboardAvoidingView,
-	Platform,
-	StyleSheet,
-	Text,
-	TextInput,
-	TouchableOpacity,
-	useWindowDimensions,
-	View,
-} from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import {
+	KeyboardAvoidingView,
 	KeyboardAwareScrollView,
+	KeyboardBackgroundView,
 	KeyboardStickyView,
+	useReanimatedKeyboardAnimation,
 } from 'react-native-keyboard-controller';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@components/Logomark';
@@ -35,6 +30,8 @@ import { AppThemeProvider, useAppTheme } from '@lib/Theme';
 export default function Page() {
 	const { isSignedIn, signOut } = useAuth();
 	const { themeName, theme } = useAppTheme('dark');
+
+	const { height, progress } = useReanimatedKeyboardAnimation();
 
 	const [currentAuthSection, setCurrentAuthSection] = useState<
 		'sign-in' | 'sign-up'
@@ -73,7 +70,7 @@ export default function Page() {
 							justifyContent: 'center',
 							alignItems: 'center',
 							backgroundColor: '#00000055',
-							gap: 20,
+							gap: 0,
 						}}
 					>
 						<LinearGradient
@@ -84,48 +81,68 @@ export default function Page() {
 								width: '100%',
 							}}
 						/>
-						<View
+						<KeyboardAwareScrollView
 							style={{
-								alignItems: 'center',
-								justifyContent: 'center',
+								//position: 'absolute',
+								flex: 1,
 								width: '100%',
-								flexDirection: 'row',
-								gap: 10,
+								//justifyContent: 'center',
+								//alignItems: 'center',
+								backgroundColor: '#00000055',
+								//gap: 0,
+							}}
+							contentContainerStyle={{
+								justifyContent: 'center',
+								alignItems: 'center',
+								flex: 1,
 							}}
 						>
-							<Icon
-								style={{ width: 80, height: 80 }}
-								fill={'#fff'}
-							/>
-							<ThemedText
-								type='title'
+							<View
 								style={{
-									fontSize: 120,
-									paddingBottom: 10,
-									color: '#fff',
-									textShadowColor: '#00000000',
-									textShadowOffset: { width: 0, height: 0 },
-									textShadowRadius: 10,
+									alignItems: 'center',
+									justifyContent: 'center',
+									width: '100%',
+									flexDirection: 'row',
+									gap: 10,
 								}}
 							>
-								Vigil
-							</ThemedText>
-						</View>
-						<AnimatePresence>
-							{currentAuthSection === 'sign-in' ? (
-								<LoginSection
-									setCurrentAuthSection={
-										setCurrentAuthSection
-									}
+								<Icon
+									style={{ width: 80, height: 80 }}
+									fill={'#fff'}
 								/>
-							) : (
-								<SignUpSection
-									setCurrentAuthSection={
-										setCurrentAuthSection
-									}
-								/>
-							)}
-						</AnimatePresence>
+								<ThemedText
+									type='title'
+									style={{
+										fontSize: 120,
+										paddingBottom: 10,
+										color: '#fff',
+										textShadowColor: '#00000000',
+										textShadowOffset: {
+											width: 0,
+											height: 0,
+										},
+										textShadowRadius: 10,
+									}}
+								>
+									Vigil
+								</ThemedText>
+							</View>
+							<AnimatePresence>
+								{currentAuthSection === 'sign-in' ? (
+									<LoginSection
+										setCurrentAuthSection={
+											setCurrentAuthSection
+										}
+									/>
+								) : (
+									<SignUpSection
+										setCurrentAuthSection={
+											setCurrentAuthSection
+										}
+									/>
+								)}
+							</AnimatePresence>
+						</KeyboardAwareScrollView>
 					</View>
 				</View>
 			</View>
@@ -297,10 +314,13 @@ const SignUpSection = ({ setCurrentAuthSection }: AuthSectionProps) => {
 	const { isLoaded, signUp, setActive } = useSignUp();
 	const router = useRouter();
 
-	const [emailAddress, setEmailAddress] = React.useState('');
-	const [password, setPassword] = React.useState('');
-	const [pendingVerification, setPendingVerification] = React.useState(false);
-	const [code, setCode] = React.useState('');
+	const [firstName, setFirstName] = useState('');
+	const [lastName, setLastName] = useState('');
+	const [username, setUsername] = useState('');
+	const [emailAddress, setEmailAddress] = useState('');
+	const [password, setPassword] = useState('');
+	const [pendingVerification, setPendingVerification] = useState(false);
+	const [code, setCode] = useState('');
 
 	// Handle submission of sign-up form
 	const onSignUpPress = async () => {
@@ -311,6 +331,9 @@ const SignUpSection = ({ setCurrentAuthSection }: AuthSectionProps) => {
 		// Start sign-up process using email and password provided
 		try {
 			await signUp.create({
+				firstName,
+				lastName,
+				username,
 				emailAddress,
 				password,
 			});
@@ -460,9 +483,85 @@ const SignUpSection = ({ setCurrentAuthSection }: AuthSectionProps) => {
 				scale: 0.95,
 			}}
 		>
-			<ThemedText themeOverride='dark' type='tertiary' style={{}}>
-				SIGN UP
-			</ThemedText>
+			<View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
+				<TextField
+					isRequired
+					style={{
+						flexGrow: 1,
+					}}
+				>
+					<TextField.Input
+						placeholder='First name'
+						style={{
+							fontFamily: 'InstrumentSans_400Regular',
+							color: theme.colors.textPrimary,
+						}}
+						onChangeText={setFirstName}
+						colors={{
+							blurBackground: theme.colors.surface,
+							focusBackground: theme.colors.surface,
+
+							blurBorder: theme.colors.border,
+							focusBorder: theme.colors.borderLight,
+						}}
+						animationConfig={{
+							duration: 100,
+						}}
+					/>
+				</TextField>
+				<TextField
+					isRequired
+					style={{
+						flexGrow: 1,
+					}}
+				>
+					<TextField.Input
+						placeholder='Last name'
+						style={{
+							fontFamily: 'InstrumentSans_400Regular',
+							color: theme.colors.textPrimary,
+						}}
+						onChangeText={setLastName}
+						colors={{
+							blurBackground: theme.colors.surface,
+							focusBackground: theme.colors.surface,
+
+							blurBorder: theme.colors.border,
+							focusBorder: theme.colors.borderLight,
+						}}
+					/>
+				</TextField>
+			</View>
+			<TextField
+				isRequired
+				style={{
+					width: '100%',
+				}}
+			>
+				<TextField.Input
+					placeholder='Username'
+					style={{
+						fontFamily: 'InstrumentSans_400Regular',
+						color: theme.colors.textPrimary,
+					}}
+					onChangeText={setUsername}
+					colors={{
+						blurBackground: theme.colors.surface,
+						focusBackground: theme.colors.surface,
+
+						blurBorder: theme.colors.border,
+						focusBorder: theme.colors.borderLight,
+					}}
+				>
+					<TextField.InputStartContent>
+						<ThemedText
+							style={{ color: theme.colors.textSecondary }}
+						>
+							@
+						</ThemedText>
+					</TextField.InputStartContent>
+				</TextField.Input>
+			</TextField>
 			<TextField
 				isRequired
 				style={{

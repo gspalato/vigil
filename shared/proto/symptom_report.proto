@@ -4,8 +4,6 @@ package vigil;
 
 import "google/protobuf/timestamp.proto";
 
-import "location.proto";
-
 // Represents a single symptom report from a user
 message SymptomReport {
   string                    user_id   = 1;

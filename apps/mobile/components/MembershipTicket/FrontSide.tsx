@@ -7,6 +7,8 @@ import { Avatar } from 'heroui-native';
 import React from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
+import { Icon } from '../Logomark';
+
 type MembershipTicketFrontSideProps = {
 	username: string;
 	photoUrl?: string;
@@ -63,8 +65,33 @@ export const FrontSide: React.FC<MembershipTicketFrontSideProps> = (props) => {
 
 			{/* Footer with user info and ticket number */}
 			<View style={styles.footer}>
-				<View style={styles.userInfo}>
-					<Text style={styles.platform}>Vigil</Text>
+				<View
+					style={{
+						flexDirection: 'column',
+						alignItems: 'center',
+						gap: 4,
+					}}
+				>
+					<View
+						style={{ flexDirection: 'row', alignItems: 'center' }}
+					>
+						<Icon
+							style={{ width: 26, height: 26 }}
+							fill={'#1C1C1E'}
+						/>
+						<View style={styles.userInfo}>
+							<Text style={styles.platform}>Vigil</Text>
+						</View>
+					</View>
+					<View
+						style={{
+							flexDirection: 'row',
+							alignItems: 'center',
+							paddingLeft: 26,
+						}}
+					>
+						<Text style={styles.platformMemberLabel}>MEMBER</Text>
+					</View>
 				</View>
 				<Text style={styles.ticketNumber}>{ticketNumber}</Text>
 			</View>
@@ -143,6 +170,14 @@ const styles = StyleSheet.create({
 		color: '#1C1C1E',
 		fontFamily: 'InstrumentSerif_400Regular',
 		letterSpacing: -0.5,
+	},
+	platformMemberLabel: {
+		fontSize: 12,
+		color: '#8E8E93',
+		fontFamily: 'InstrumentSans_400Regular',
+		letterSpacing: 0.5,
+		textTransform: 'uppercase',
+		marginTop: -6,
 	},
 	// Ticket number style with platform-specific font
 	ticketNumber: {

@@ -4,6 +4,7 @@ from shapely.geometry import Point, Polygon
 from scipy.spatial import ConvexHull
 
 from generated import cluster_pb2, heatmap_pb2, location_pb2
+from calcs import spline_smooth_cluster_region
 
 def generate_heatmap_points_for_cluster(cluster: cluster_pb2.Cluster, max_points=10) -> list[heatmap_pb2.HeatmapPoint]:
     """
@@ -40,7 +41,7 @@ def generate_heatmap_points_for_cluster(cluster: cluster_pb2.Cluster, max_points
     radius = max(lat_range, lon_range) * 50000  # rough scaling factor to meters for heatmap
     intensity = 1 # n_reports / max_points  # normalize to approx number of points
 
-    heatmap_points = []
+    approximate_points = []
 
     for _ in range(min(max_points, n_reports)):
         # Pick a random report as a center
@@ -58,10 +59,11 @@ def generate_heatmap_points_for_cluster(cluster: cluster_pb2.Cluster, max_points
         if polygon and not polygon.contains(Point(candidate_lat, candidate_lon)):
             continue
 
-        heatmap_points.append(heatmap_pb2.HeatmapPoint(
-            location=location_pb2.Location(lat=candidate_lat, lon=candidate_lon),
-            intensity=intensity,
-            radius=radius
-        ))
+        approximate_points.append(location_pb2.Location(lat=candidate_lat, lon=candidate_lon))
 
-    return heatmap_points
+    return approximate_points
+
+def generate_heatarea_vertices_for_cluster(cluster: cluster_pb2.Cluster) -> list[location_pb2.Location]:
+    approximate_points = generate_heatmap_points_for_cluster(cluster)
+    heatarea_vertices = spline_smooth_cluster_region(approximate_points)
+    return heatarea_vertices

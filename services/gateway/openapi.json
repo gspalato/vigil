@@ -479,12 +479,24 @@
           },
           "timespan": {
             "$ref": "#/components/schemas/ReadingTimespan"
+          },
+          "heatmapAreas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HeatmapArea"
+            }
+          },
+          "geojson": {
+            "description": "GeoJSON representation of heatmap areas",
+            "type": "string"
           }
         },
         "additionalProperties": false,
         "required": [
           "clusters",
           "createdAt",
+          "geojson",
+          "heatmapAreas",
           "heatmapPoints",
           "id",
           "rangeFrom",
@@ -566,6 +578,25 @@
           "radius"
         ]
       },
+      "HeatmapArea": {
+        "type": "object",
+        "properties": {
+          "vertices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Location"
+            }
+          },
+          "intensity": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "intensity",
+          "vertices"
+        ]
+      },
       "SymptomReport": {
         "description": "Represents a single symptom report from a user",
         "type": "object",
@@ -642,37 +673,18 @@
           "heatmapPoints": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/GeneratedHeatmap"
-            }
-          }
-        },
-        "additionalProperties": false,
-        "required": [
-          "heatmapPoints"
-        ]
-      },
-      "GeneratedHeatmap": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "points": {
-            "type": "array",
-            "items": {
               "$ref": "#/components/schemas/HeatmapPoint"
             }
+          },
+          "geojson": {
+            "description": "GeoJSON representation of heatmap areas",
+            "type": "string"
           }
         },
         "additionalProperties": false,
         "required": [
-          "createdAt",
-          "id",
-          "points"
+          "geojson",
+          "heatmapPoints"
         ]
       }
     }

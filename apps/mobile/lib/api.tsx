@@ -1,5 +1,6 @@
 import { useAuth, useClerk, useUser } from '@clerk/clerk-expo';
 import { UserResource, UseUserReturn } from '@clerk/types';
+import { set } from 'date-fns';
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
 import React, { createContext, useContext, useEffect, useState } from 'react';
@@ -26,8 +27,17 @@ enum FetchHeatmapPointsTimespan {
 
 // Context
 export type VigilAPIContextType = {
+	// Internal endpoints. Not exposed to normal users.
+	// Used for testing and development.
+	// They are protected by Clerk authentication.
+
+	triggerReadingAnalysis: (
+		timespan: API.ReadingTimespan,
+	) => Promise<API.Reading | undefined>;
+
+	geoJSON: { [key: string]: any } | undefined;
 	heatmapPoints: HeatmapPoint[];
-	fetchHeatmapPoints: (params?: {
+	fetchHeatmapData: (params?: {
 		timespan?: FetchHeatmapPointsTimespan | `${FetchHeatmapPointsTimespan}`;
 	}) => Promise<void>;
 
@@ -63,11 +73,45 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 		baseUrl: process.env.EXPO_PUBLIC_VIGIL_BACKEND_URL,
 	});
 
+	const triggerReadingAnalysis = async (timespan: API.ReadingTimespan) => {
+		try {
+			const token = await clerkAuth.getToken();
+			if (!token) {
+				console.warn(
+					'No auth token available for triggering reading analysis',
+				);
+				return;
+			}
+
+			const res = await API.gatewayApiSpecPostApiInternalReadings({
+				body: {
+					timespan,
+				},
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				client: gatewayClientOpenAPISDK,
+			});
+
+			if (res.error) {
+				console.error('Failed to trigger reading analysis:', res.error);
+				return;
+			}
+
+			return res.data.reading;
+		} catch (error) {
+			console.error('Failed to trigger reading analysis (catch):', error);
+			return;
+		}
+	};
+
+	const [geoJSON, setGeoJSON] = useState<{ [key: string]: any }>();
 	const [heatmapPoints, setHeatmapPoints] = useState<HeatmapPoint[]>([]);
-	const fetchHeatmapPoints = async (params?: {
+	const fetchHeatmapData = async (params?: {
 		timespan?: FetchHeatmapPointsTimespan | `${FetchHeatmapPointsTimespan}`;
 		similarity?: string[] | string | undefined;
 	}) => {
+		console.log('Fetching heatmap data with params:', params);
 		try {
 			const res = await API.gatewayApiSpecGetApiHeatmap({
 				query: {
@@ -83,9 +127,15 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 				);
 			}
 
-			const points = res.data.heatmapPoints.map((h) => h.points).flat();
-			console.log('Fetched heatmap points:', points);
-			setHeatmapPoints(points);
+			console.log('Fetched heatmap data:', res.data);
+			setHeatmapPoints(res.data.heatmapPoints);
+
+			if (res.data.geojson === '') {
+				console.warn('No geoJSON data received for heatmap');
+				return;
+			}
+
+			setGeoJSON(JSON.parse(res.data.geojson));
 		} catch (error) {
 			console.error('Failed to fetch heatmap points:', error);
 			return;
@@ -94,13 +144,12 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 
 	const [myReports, setMyReports] = useState<API.SymptomReport[]>([]);
 	const fetchMyReports = async () => {
+		console.log('Fetching my reports...');
 		try {
 			const token = await clerkAuth.getToken();
 			if (!token) {
 				console.warn('No auth token available for fetching reports');
 				return;
-			} else {
-				console.log(token);
 			}
 
 			const res = await API.gatewayApiSpecGetApiReports({
@@ -163,8 +212,11 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 	return (
 		<VigilAPIContext.Provider
 			value={{
+				triggerReadingAnalysis,
+
+				geoJSON,
 				heatmapPoints,
-				fetchHeatmapPoints,
+				fetchHeatmapData,
 
 				myReports,
 				fetchMyReports,

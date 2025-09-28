@@ -28,12 +28,13 @@ import { ThemedView } from '@components/ThemedView';
 
 import { MadeByLogomark } from '@/components/Logomark';
 import { MembershipTicketModal } from '@/components/MembershipTicket/Modal';
+import { MeshGradient } from '@/components/MeshGradient';
 import { ThemedButton } from '@/components/ThemedButton';
 import { ThemedScrollView } from '@/components/ThemedScrollView';
 
 import { useApi } from '@lib/api';
 import { Palette } from '@lib/palette';
-import { getApproximateScreenCornerRadius } from '@lib/utils';
+import { getApproximateScreenCornerRadius, hexToRgbaTuple } from '@lib/utils';
 
 import { useAppTheme } from '@/lib/Theme';
 
@@ -42,10 +43,15 @@ import { Roles } from '@/types/globals';
 export default function Page() {
 	const { theme, toggleTheme } = useAppTheme();
 
-	const { signOut } = useAuth();
+	const { getToken, signOut } = useAuth();
 
 	const user = useUser();
-	const { myReports, fetchMyReports } = useApi();
+	const {
+		myReports,
+		fetchMyReports,
+		fetchHeatmapData,
+		triggerReadingAnalysis,
+	} = useApi();
 
 	const [isTicketModalVisible, setIsTicketModalVisible] = useState(false);
 
@@ -68,21 +74,8 @@ export default function Page() {
 					onPress: () => {
 						toggleTheme();
 					},
-				},
-			],
-		},
-		{
-			header: 'Developer',
-			protect: false,
-			options: [
-				{
-					icon: (color: string) => (
-						<Ionicons name='analytics' size={20} color={color} />
-					),
-					label: 'Trigger reading analysis',
-					onPress: () => {
-						console.log('Trigger reading analysis pressed');
-					},
+					badge: null,
+					showChevron: false,
 				},
 			],
 		},
@@ -102,6 +95,64 @@ export default function Page() {
 					onPress: () => {
 						signOut().then(() => router.replace('/(auth)/sign-in'));
 					},
+					badge: null,
+					showChevron: true,
+				},
+			],
+		},
+		{
+			header: 'Developer',
+			protect: false,
+			options: [
+				{
+					icon: (color: string) => (
+						<Ionicons
+							name='hammer-outline'
+							size={20}
+							color={color}
+						/>
+					),
+					label: 'Trigger reading analysis',
+					onPress: async () => {
+						console.log('Trigger reading analysis pressed');
+
+						// Trigger analysis for the last 24 hours (ReadingTimespan.DAY = 1)
+						await triggerReadingAnalysis(1);
+					},
+					badge: 'DEBUG',
+					showChevron: false,
+				},
+				{
+					icon: (color: string) => (
+						<Ionicons
+							name='hammer-outline'
+							size={20}
+							color={color}
+						/>
+					),
+					label: 'Refresh heatmap',
+					onPress: () => {
+						fetchHeatmapData();
+					},
+					badge: 'DEBUG',
+					showChevron: false,
+				},
+				{
+					icon: (color: string) => (
+						<Ionicons
+							name='hammer-outline'
+							size={20}
+							color={color}
+						/>
+					),
+					label: 'Print auth token',
+					onPress: () => {
+						getToken().then((token) => {
+							console.log('AUTH TOKEN:', token);
+						});
+					},
+					badge: 'DEBUG',
+					showChevron: false,
 				},
 			],
 		},
@@ -224,6 +275,7 @@ export default function Page() {
 							return (
 								<ThemedView
 									style={{
+										backgroundColor: 'transparent',
 										flexDirection: 'column',
 										gap: 5,
 									}}
@@ -239,14 +291,13 @@ export default function Page() {
 									>
 										{section.header}
 									</ThemedText>
-									<ThemedView
+									<View
 										style={{
 											backgroundColor: 'transparent',
 											borderRadius: theme.borderRadii.sm,
 											flexDirection: 'column',
 											gap: 0,
 										}}
-										elevation='surface'
 									>
 										{section.options.map((option, idx) => (
 											<ThemedButton
@@ -255,10 +306,8 @@ export default function Page() {
 												viewStyle={[
 													styles.sectionButton,
 													{
-														borderTopWidth:
-															idx === 0
-																? 0
-																: StyleSheet.hairlineWidth,
+														borderWidth:
+															StyleSheet.hairlineWidth,
 
 														borderTopLeftRadius:
 															idx === 0
@@ -307,85 +356,46 @@ export default function Page() {
 												<ThemedText
 													size='sm'
 													style={{
+														flex: 1,
 														color: theme.colors
 															.textSecondary,
+														backgroundColor:
+															'transparent',
 													}}
 												>
 													{option.label}
 												</ThemedText>
-											</ThemedButton>
-										))}
-										{/*section.options.map((option, idx) => (
-											<Pressable
-												key={idx}
-												onPress={() => option.onPress()}
-											>
-												<ThemedView
-													style={[
-														styles.sectionButton,
-														{
-															borderTopWidth:
-																idx === 0
-																	? 0
-																	: StyleSheet.hairlineWidth,
-
-															borderTopLeftRadius:
-																idx === 0
-																	? theme
-																			.borderRadii
-																			.sm
-																	: 0,
-
-															borderTopRightRadius:
-																idx === 0
-																	? theme
-																			.borderRadii
-																			.sm
-																	: 0,
-
-															borderBottomLeftRadius:
-																idx ===
-																section.options
-																	.length -
-																	1
-																	? theme
-																			.borderRadii
-																			.sm
-																	: 0,
-
-															borderBottomRightRadius:
-																idx ===
-																section.options
-																	.length -
-																	1
-																	? theme
-																			.borderRadii
-																			.sm
-																	: 0,
-														},
-													]}
-												>
-													{option.icon && (
-														<View>
-															{option.icon(
-																theme.colors
-																	.textSecondary,
-															)}
-														</View>
-													)}
+												{option.badge && (
 													<ThemedText
-														size='sm'
+														size='xs'
 														style={{
+															fontFamily:
+																'InstrumentSans_500Medium',
+															paddingHorizontal: 6,
+															paddingVertical: 2,
 															color: theme.colors
 																.textSecondary,
+
+															opacity: 0.25,
+															overflow: 'hidden',
 														}}
 													>
-														{option.label}
+														{option.badge}
 													</ThemedText>
-												</ThemedView>
-											</Pressable>
-										))*/}
-									</ThemedView>
+												)}
+												{option.showChevron && (
+													<Ionicons
+														name='chevron-forward'
+														size={16}
+														color={
+															theme.colors
+																.textSecondary
+														}
+													/>
+												)}
+											</ThemedButton>
+										))}
+									</View>
 								</ThemedView>
 							);
 						})

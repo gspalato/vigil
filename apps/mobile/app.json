@@ -16,10 +16,15 @@
       "supportsTablet": true,
       "config": {
         "googleMapsApiKey": "process.env.GOOGLE_MAPS_API_KEY"
-      }
+      },
+      "bundleIdentifier": "com.anonymous.vigil"
+    },
+    "android": {
+      "package": "com.spxlato.vigil"
     }
   },
   "android": {
+    "package": "com.spxlato.vigil",
     "adaptiveIcon": {
       "foregroundImage": "./assets/adaptive-icon.png",
       "backgroundColor": "#ffffff"

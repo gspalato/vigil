@@ -1,3 +1,4 @@
+import json
 import sys
 
 import asyncio
@@ -11,7 +12,7 @@ import clusters
 import heatmap
 import llm
 
-from generated import analytics_service_pb2, analytics_service_pb2_grpc, cluster_pb2, heatmap_pb2, reading_pb2
+from generated import analytics_service_pb2, analytics_service_pb2_grpc, cluster_pb2, heatmap_pb2, reading_pb2, location_pb2
 
 
 class AnalyticsService(analytics_service_pb2_grpc.AnalyticsService):
@@ -33,6 +34,14 @@ class AnalyticsService(analytics_service_pb2_grpc.AnalyticsService):
         request: analytics_service_pb2.CalculateReadingRequest,
         context: grpc.aio.ServicerContext,
     ) -> analytics_service_pb2.CalculateReadingResponse:
+        """
+            Calculates a new reading based on reports in the specified time and similarity.
+            If no time is specified, calculates the reading from all reports.
+            If no similarity is specified, calculates the general incidence of symptoms.
+        """
+
+        logging.debug(f"CalculateReading called with request: {request}")
+
         timespan = request.timespan
         similarity = request.similarity if isinstance(request.similarity, str) or (isinstance(request.similarity, list) and len(request.similarity) > 0) else None
 
@@ -46,12 +55,38 @@ class AnalyticsService(analytics_service_pb2_grpc.AnalyticsService):
 
         cls: list[cluster_pb2.Cluster] = clusters.calculate_clusters(reports)
         heatmap_points: list[heatmap_pb2.HeatmapPoint] = []
+        heatarea_vertices: list[location_pb2.Location] = []
         for cluster in cls:
             heatmap_points += heatmap.generate_heatmap_points_for_cluster(cluster)
+            heatarea_vertices += heatmap.generate_heatarea_vertices_for_cluster(cluster)
+
+        # Generate GeoJSON for heatareas.
+        geojson_features = []
+        for vertices in heatarea_vertices:
+            if len(vertices) < 3:
+                continue  # Need at least 3 points to form a polygon
+            coords = [(loc.lon, loc.lat) for loc in vertices]  # GeoJSON uses (lon, lat)
+            coords.append(coords[0])  # Close the polygon
+            feature = {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [coords]
+                },
+                "properties": {}
+            }
+            geojson_features.append(feature)
+
+        geojson = {
+            "type": "FeatureCollection",
+            "features": geojson_features
+        }
 
         reading = reading_pb2.Reading(
             created_at=datetime.now(timezone.utc),
             heatmap_points=heatmap_points,
+            heatmap_areas=heatarea_vertices,
+            geojson=json.dumps(geojson),
             clusters=cls,
             similarity=similarity,
             range_from=range_from,
@@ -79,17 +114,18 @@ class AnalyticsService(analytics_service_pb2_grpc.AnalyticsService):
             If no similarity is specified, fetches the general incidence of symptoms.
         """
 
-        points = await db.fetch_heatmap(
+        (points, geojson) = await db.fetch_heatmap_data(
             timespan=request.timespan,
             similarity=request.similarity
         )
 
         if not points:
             logging.debug("No heatmap points found.")
-            return analytics_service_pb2.FetchHeatmapResponse(heatmapPoints=[])
+            return analytics_service_pb2.FetchHeatmapResponse(heatmap_points=[], geojson="")
 
         return analytics_service_pb2.FetchHeatmapResponse(
-            heatmapPoints=points
+            heatmap_points=points,
+            geojson=geojson
         );
 
 

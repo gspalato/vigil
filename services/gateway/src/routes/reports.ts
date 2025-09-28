@@ -11,19 +11,9 @@ import { ReadingTimespan } from '../generated/reading';
 export function build(app: Express) {
 	app.get('/api/reports', async (req, res) => {
 		const auth = getAuth(req);
-		console.log('Auth object:', auth);
-		console.log('Headers:', req.headers);
 
 		// Handle pending sessions - they're valid but not fully activated
-		if (
-			!auth.userId ||
-			(auth.sessionStatus !== 'active' &&
-				auth.sessionStatus !== 'pending')
-		) {
-			console.log(
-				'Unauthorized request to /api/reports. Auth status:',
-				auth,
-			);
+		if (!auth.isAuthenticated) {
 			return res.status(401).send({ message: 'Unauthorized' });
 		}
 
@@ -47,11 +37,7 @@ export function build(app: Express) {
 		const auth = getAuth(req);
 
 		// Handle pending sessions - they're valid but not fully activated
-		if (
-			!auth.userId ||
-			(auth.sessionStatus !== 'active' &&
-				auth.sessionStatus !== 'pending')
-		) {
+		if (!auth.isAuthenticated) {
 			console.log(
 				'Unauthorized request to /api/reports. Auth status:',
 				auth,

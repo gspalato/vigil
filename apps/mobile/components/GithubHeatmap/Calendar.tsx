@@ -48,6 +48,27 @@ export const GitHubContributionCalendar = forwardRef<
 		};
 	}, [data]);
 
+	// Normalize levels based on minimum and maximum values in data.
+	const minLevel = Math.min(...Object.values(data).filter((v) => v > 0));
+	const maxLevel = Math.max(...Object.values(data));
+	Object.keys(data).forEach((date) => {
+		const value = data[date];
+		if (value === 0) {
+			data[date] = 0 as ContributionLevel;
+		} else if (value === maxLevel) {
+			data[date] = 4 as ContributionLevel;
+		} else {
+			// Scale between 1 and 3
+			const scaledLevel = Math.ceil(
+				((value - minLevel) / (maxLevel - minLevel)) * 3,
+			);
+			data[date] = Math.min(
+				Math.max(scaledLevel, 1),
+				3,
+			) as ContributionLevel;
+		}
+	});
+
 	// Generate day labels
 
 	// Calculate calendar grid

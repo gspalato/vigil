@@ -23,6 +23,7 @@ import {
 } from '@lib/utils';
 
 import { Palette } from '@/lib/palette';
+import { useAppTheme } from '@/lib/Theme';
 
 const ExampleReports = [
 	{
@@ -78,7 +79,7 @@ const ExampleReports = [
 ];
 
 export default function Page() {
-	const borderRadius = getApproximateScreenCornerRadius();
+	const { theme } = useAppTheme();
 
 	const { myReports, fetchMyReports } = useApi();
 
@@ -113,21 +114,21 @@ export default function Page() {
 
 									borderBottomWidth: StyleSheet.hairlineWidth,
 									gap: 3,
-									backgroundColor: '#fff',
 
 									borderTopLeftRadius:
-										index === 0 ? borderRadius.dp / 2 : 0,
+										index === 0 ? theme.borderRadii.sm : 0,
 									borderTopRightRadius:
-										index === 0 ? borderRadius.dp / 2 : 0,
+										index === 0 ? theme.borderRadii.sm : 0,
 									borderBottomLeftRadius:
 										index === reports.length - 1
-											? borderRadius.dp
+											? theme.borderRadii.screen
 											: 0,
 									borderBottomRightRadius:
 										index === reports.length - 1
-											? borderRadius.dp
+											? theme.borderRadii.screen
 											: 0,
 								}}
+								elevation='surface'
 								thinBorder
 							>
 								<ThemedText

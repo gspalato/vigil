@@ -1,5 +1,7 @@
 import { getAuth } from '@clerk/express';
 import type { Express } from 'express';
+import { defaultEndpointsFactory } from 'express-zod-api';
+import { z } from 'zod';
 
 import { AnalyticsServiceClient } from '../clients';
 
@@ -19,11 +21,6 @@ export function build(app: Express) {
 		) {
 			return res.status(403).send({ message: 'Forbidden' });
 		}
-
-		console.log(
-			'Received /api/internal/readings request with body:',
-			req.body,
-		);
 
 		// Validate request body.
 		try {
