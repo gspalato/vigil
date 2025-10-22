@@ -2,6 +2,7 @@ import * as grpc from '@grpc/grpc-js';
 import { UnaryCallback } from '@grpc/grpc-js/build/src/client';
 
 import * as AnalyticsService from './generated/analytics_service';
+import * as MLService from './generated/ml_service';
 
 type RpcImpl = (
 	service: string,
@@ -49,9 +50,18 @@ const createRpc = (conn: grpc.Client) => {
 
 export const AnalyticsServiceRPC = createRpc(
 	new grpc.Client(
-		'analytics-service.default.svc.cluster.local:50051',
+		'analytics-service.services.svc.cluster.local:50051',
 		grpc.credentials.createInsecure(),
 	),
 );
 export const AnalyticsServiceClient =
 	new AnalyticsService.AnalyticsServiceClientImpl(AnalyticsServiceRPC);
+
+export const MLServiceRPC = createRpc(
+	new grpc.Client(
+		'ml-service.services.svc.cluster.local:50051',
+		grpc.credentials.createInsecure(),
+	),
+);
+export const MLServiceClient =
+	new MLService.MLServiceClientImpl(MLServiceRPC);

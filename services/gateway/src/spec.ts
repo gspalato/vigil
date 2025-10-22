@@ -2,12 +2,12 @@ import { Tspec } from 'tspec';
 
 import {
 	CalculateReadingRequest,
-	FetchHeatmapResponse,
 	InferSymptomsAndCauseRequest,
 	InferSymptomsAndCauseResponse,
 } from '@generated/analytics_service';
 import { Reading } from '@generated/reading';
 import { SymptomReport } from '@generated/symptom_report';
+import { FetchLatestDataResponse } from './generated/ml_service';
 
 export type GatewayApiSpec = Tspec.DefineApiSpec<{
 	paths: {
@@ -69,12 +69,9 @@ export type GatewayApiSpec = Tspec.DefineApiSpec<{
 		'/api/heatmap': {
 			get: {
 				summary: 'Get heatmap data points';
-				query: {
-					timespan: 'HOUR' | 'DAY' | 'WEEK' | 'MONTH';
-					similarity: string[] | string | '';
-				};
+				query: {};
 				responses: {
-					200: FetchHeatmapResponse;
+					200: FetchLatestDataResponse;
 					400: {
 						message: string;
 					};

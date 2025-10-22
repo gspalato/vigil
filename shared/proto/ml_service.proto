@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package vigil.ml;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+import "snapshot.proto";
+import "predicted_snapshot.proto";
+import "symptom_report.proto";
+
+/* Structures */
+
+/* Service and requests */
+
+service MLService {
+    rpc AddSymptomReport(AddSymptomReportRequest) returns (AddSymptomReportResponse);
+    rpc FetchLatestData(FetchLatestDataRequest) returns (FetchLatestDataResponse);
+    rpc ProcessClusters(ProcessClustersRequest) returns (ProcessClustersResponse);
+    rpc PredictEvolution(PredictEvolutionRequest) returns (PredictEvolutionResponse);
+}
+
+
+message AddSymptomReportRequest {
+    string text = 1;
+    float  lat  = 2;
+    float  lon  = 3;
+}
+
+message AddSymptomReportResponse {
+    bool          success = 1;
+    string        error   = 2;
+    SymptomReport report  = 3;
+}
+
+
+message ProcessClustersRequest {}
+message ProcessClustersResponse {
+    bool success = 1;
+    string error = 2;
+}
+
+message FetchLatestDataRequest {}
+message FetchLatestDataResponse {
+    google.protobuf.Timestamp time_window_start = 1;
+    google.protobuf.Timestamp time_window_end   = 2;
+    string                    geojson           = 3;
+}
+
+
+message GenerateSnapshotsRequest {
+    google.protobuf.Timestamp start_date = 1;
+    google.protobuf.Timestamp end_date   = 2;
+}
+
+message GenerateSnapshotsResponse {
+    repeated Snapshot snapshots = 1;
+}
+
+
+message FetchSnapshotsRequest {
+    google.protobuf.Timestamp start_date = 1;
+    google.protobuf.Timestamp end_date   = 2;
+    optional string           cluster_id = 3;  // Optional filter for specific cluster
+}
+
+message FetchSnapshotsResponse {
+    repeated Snapshot snapshots = 1;
+}
+
+
+message PredictEvolutionRequest {
+  string                    cluster_id    = 1;
+  google.protobuf.Timestamp start_date     = 2; 
+  google.protobuf.Timestamp end_date       = 3; 
+  int32                     forecast_steps = 4;  // Number of future steps (e.g., 3 days)
+}
+
+message PredictEvolutionResponse {
+  repeated PredictedSnapshot predictions = 1;
+}

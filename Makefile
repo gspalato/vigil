@@ -5,7 +5,7 @@ ROOT_DIR=./
 SERVICES_DIR=./services
 
 # All projects that need protobuf generation
-PROTO_PY_PROJECTS=analytics
+PROTO_PY_PROJECTS=analytics ml
 PROTO_TS_PROJECTS=digest gateway
 
 # All projects that need openapi generation
@@ -31,15 +31,15 @@ proto-ts:
 proto-py:
 	@for project in $(PROTO_PY_PROJECTS); do \
 		echo "Generating Python for $$project..."; \
-		mkdir -p $(SERVICES_DIR)/$$project/src/generated; \
-		if ! [ -e "$(SERVICES_DIR)/$$project/src/generated/__init__.py" ] ; then touch "$(SERVICES_DIR)/$$project/src/generated/__init__.py"; fi; \
+		mkdir -p $(SERVICES_DIR)/$$project/generated; \
+		if ! [ -e "$(SERVICES_DIR)/$$project/generated/__init__.py" ] ; then touch "$(SERVICES_DIR)/$$project/generated/__init__.py"; fi; \
 		tools/python-proto-codegen/venv/bin/python -m grpc_tools.protoc \
 			-I=$(PROTO_DIR) \
-			--python_out=$(SERVICES_DIR)/$$project/src/generated \
-			--grpc_python_out=$(SERVICES_DIR)/$$project/src/generated \
-			--pyi_out=$(SERVICES_DIR)/$$project/src/generated \
+			--python_out=$(SERVICES_DIR)/$$project/generated \
+			--grpc_python_out=$(SERVICES_DIR)/$$project/generated \
+			--pyi_out=$(SERVICES_DIR)/$$project/generated \
 			$(PROTO_DIR)/*.proto; \
-		sed -i 's/^import \(.*_pb2\)/from . import \1/' $(SERVICES_DIR)/$$project/src/generated/*_pb2*.py; \
+		sed -i 's/^import \(.*_pb2\)/from . import \1/' $(SERVICES_DIR)/$$project/generated/*_pb2*.py; \
 	done
 
 openapi-ts:

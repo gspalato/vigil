@@ -25,38 +25,22 @@ async def fetch_reports(timespan: reading_pb2.ReadingTimespan | None, similarity
     time_diff = None
     match timespan:
         case reading_pb2.ReadingTimespan.HOUR:
-            time_diff = timedelta(hours=1)
+            time_diff = '1 HOUR'
         case reading_pb2.ReadingTimespan.DAY:
-            time_diff = timedelta(days=1)
+            time_diff = '1 DAY'
         case reading_pb2.ReadingTimespan.WEEK:
-            time_diff = timedelta(weeks=1)
+            time_diff = '1 WEEK'    
         case reading_pb2.ReadingTimespan.MONTH:
-            time_diff = timedelta(days=30)
+            time_diff = '1 MONTH'
 
     now = datetime.now(timezone.utc)
 
     time_threshold = now - time_diff
 
-    query = client.table("reports").select("*")
-    query = query.gte("timestamp", time_threshold.isoformat())
-
-    # Filter by similarity if provided.
-    # The similarity can either be the inferred cause, a symptom or a list of symptoms.
-    # Helper to build the "or" filter
-    or_filter = None
-
-    if similarity:
-        if isinstance(similarity, str):
-            # Matching a single value
-            json_array = json.dumps([similarity])
-            or_filter = f"cause.eq.{similarity},symptoms.cs.{json_array}"
-        elif isinstance(similarity, list):
-            json_array = json.dumps(similarity)
-            joined_causes = ",".join(similarity)
-            or_filter = f"cause.in.({joined_causes}),symptoms.cs.{json_array}"
-
-
-    query = query.or_(or_filter) if or_filter else query
+    query = client.rpc("get_reports_since", {
+        "since": time_diff,
+        "similarity": similarity if isinstance(similarity, list) else [similarity]
+    })
 
     try: 
         result = await query.execute()

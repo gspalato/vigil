@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-service
+  template:
+    metadata:
+      labels:
+        app: ml-service
+    spec:
+      containers:
+        - name: ml-service
+          image: unreaalism/vigil-ml:latest
+          ports:
+            - containerPort: 50051
+          envFrom:
+            - secretRef:
+                name: ml-secrets
+          #- configMapRef:
+          #    name: analytics-config

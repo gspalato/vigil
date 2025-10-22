@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: gateway-service
-  namespace: default
+  namespace: services
 spec:
   ingressClassName: ngrok
   rules:
@@ -14,5 +14,6 @@ spec:
             backend:
               service:
                 name: gateway-service
+                namespace: services
                 port:
                   number: 3000

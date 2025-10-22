@@ -17,6 +17,7 @@ export const ThemedView: React.FC<ThemedViewProps> = (props) => {
 		thinBorder,
 		elevation = 'transparent',
 		themeOverride,
+		...viewProps
 	} = props;
 
 	const { theme } = useAppTheme(themeOverride);
@@ -48,6 +49,7 @@ export const ThemedView: React.FC<ThemedViewProps> = (props) => {
 			transition={{
 				duration: 100,
 			}}
+			{...viewProps}
 		>
 			{children}
 		</View>

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package vigil.ml;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+// A predicted snapshot is a predicted "slice" of a cluster at a specific future point in time.
+// Similar to Snapshot but used for visualizing the predicted evolution of a cluster.
+message PredictedSnapshot {
+    string                    cluster_id        = 1; // Cluster UUID or temporary ID.
+    repeated double           centroid          = 2; // [lat, lon]
+    repeated double           avg_embedding     = 3; // 768D vector
+    repeated int64            report_count      = 4; // Count of symptom reports
+    google.protobuf.Struct    common_symptoms   = 5; // JSON-like struct for aggregated symptoms
+    google.protobuf.Timestamp time_window_start = 6; // The start of the time window.
+    google.protobuf.Timestamp time_window_end   = 7; // The end of the time window.
+    float                     intensity         = 8; // Predicted intensity (e.g., severity score)
+}

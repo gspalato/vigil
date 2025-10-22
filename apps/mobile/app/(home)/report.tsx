@@ -1,12 +1,19 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import { Button, TextField } from 'heroui-native';
-import { useState } from 'react';
+import LottieView from 'lottie-react-native';
+import {
+	forwardRef,
+	useImperativeHandle,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import Animated from 'react-native-reanimated';
+import { Modal } from 'react-native-reanimated-modal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActivityStatus } from '@components/ActivityIndicator';
 import { AiBlob } from '@components/AiBlob';
@@ -14,26 +21,33 @@ import { SplitButtons2 } from '@components/SplitButtons2';
 import { ThemedText } from '@components/ThemedText';
 import { ThemedView } from '@components/ThemedView';
 
+import { ImperativeModal } from '@/components/ImperativeModal';
 import { ThemedButton } from '@/components/ThemedButton';
+import { ThemedGradientButton } from '@/components/ThemedGradientButton';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
 
 import { useApi } from '@lib/api';
 import { Palette } from '@lib/palette';
 
+import { useAppTheme } from '@/lib/Theme';
+
 export default function Page() {
+	const { theme } = useAppTheme();
 	const { reportSymptoms } = useApi();
 
 	const [text, setText] = useState('');
 	const [status, setStatus] = useState<ActivityStatus>('idle');
 
-	const [splitted, setSplitted] = useState(true);
+	const processingModalRef = useRef<any>(null);
+	const invalidInputModalRef = useRef<any>(null);
 
 	const analyze = async () => {
 		if (text.trim().length === 0) {
+			invalidInputModalRef?.current?.show();
 			return;
 		}
 
-		setStatus('loading');
+		processingModalRef?.current?.show();
 		try {
 			const res = await reportSymptoms(text);
 			console.log(res);
@@ -58,122 +72,77 @@ export default function Page() {
 		}
 	};
 
+	const insets = useSafeAreaInsets();
+
 	return (
 		<>
-			<ThemedSafeAreaView
-				style={{
+			<KeyboardAwareScrollView
+				style={{ flex: 1 }}
+				//behavior={Platform.OS === "ios" ? "padding" : undefined}
+				contentContainerStyle={{
 					flex: 1,
+					justifyContent: 'flex-start',
+					alignItems: 'center',
+					padding: 20,
+					flexDirection: 'column',
+					gap: 20,
+					backgroundColor: 'transparent',
+
+					paddingTop: insets.top + 20,
+					paddingBottom: 0,
 				}}
 			>
-				<KeyboardAwareScrollView
-					style={{ flex: 1 }}
-					//behavior={Platform.OS === "ios" ? "padding" : undefined}
-					contentContainerStyle={{
-						flex: 1,
-						justifyContent: 'flex-start',
+				<StatusBar barStyle={'dark-content'} />
+				<ThemedView
+					style={{
+						width: '100%',
+						gap: 3,
+						flexDirection: 'row',
 						alignItems: 'center',
-						padding: 20,
-						paddingBottom: 0,
-						flexDirection: 'column',
-						gap: 20,
-						backgroundColor: 'transparent',
+						justifyContent: 'flex-start',
 					}}
 				>
-					<StatusBar barStyle={'dark-content'} />
-					<ThemedView
-						style={{
-							width: '100%',
-							gap: 3,
-							flexDirection: 'row',
-							alignItems: 'center',
-							justifyContent: 'flex-start',
+					<AiBlob
+						style={{ height: 50, width: 50 }}
+						// @ts-ignore
+						sharedTransitionTag='aiblob'
+					/>
+					<ThemedText type='title' size='xl'>
+						How are you feeling today?
+					</ThemedText>
+				</ThemedView>
+				<TextField isRequired style={{ width: '100%', flex: 1 }}>
+					<TextField.Input
+						placeholder='Describe your symptoms, you can define their intensity as well.'
+						multiline
+						style={{ fontFamily: 'InstrumentSans_400Regular' }}
+						onChangeText={setText}
+						colors={{
+							blurBackground: theme.colors.surface,
+							focusBackground: theme.colors.surface,
+
+							blurBorder: theme.colors.border,
+							focusBorder: theme.colors.borderLight,
 						}}
-					>
-						<AiBlob
-							style={{ height: 50, width: 50 }}
-							// @ts-ignore
-							sharedTransitionTag='aiblob'
-						/>
-						<ThemedText type='title' size='xl'>
-							How are you feeling today?
-						</ThemedText>
-					</ThemedView>
-					<TextField isRequired style={{ width: '100%' }}>
-						<TextField.Input
-							placeholder='Describe your symptoms, you can define their intensity as well.'
-							multiline
-							style={{ fontFamily: 'InstrumentSans_400Regular' }}
-							onChangeText={setText}
-						/>
-					</TextField>
-					<ThemedButton onPress={analyze}>
-						<ThemedText size='sm' type='button'>
-							Analyze
-						</ThemedText>
-					</ThemedButton>
-					{/*
-					<View
-						style={{
-							width: '100%',
-							gap: 10,
-							flexDirection: 'row',
-							marginTop: 'auto',
-						}}
-					>
-						<Button
-							variant='primary'
-							size='md'
-							style={{
-								borderRadius: 50,
-								flex: 1,
-							}}
-							onPress={() => navigation.goBack()}
-						>
-							<Button.StartContent>
-								<Ionicons
-									name='chevron-back'
-									size={18}
-									color={'#fff'}
-								/>
-							</Button.StartContent>
-							<Button.LabelContent>
-								<ThemedText
-									style={{ fontSize: 15, color: '#fff' }}
-									type='button'
-								>
-									Back
-								</ThemedText>
-							</Button.LabelContent>
-						</Button>
-						<Button
-							variant='primary'
-							size='md'
-							style={{
-								borderRadius: 50,
-								flex: 1,
-							}}
-							onPress={analyze}
-						>
-							<Button.LabelContent>
-								<ThemedText
-									style={{ fontSize: 15, color: '#fff' }}
-									type='button'
-								>
-									Analyze
-								</ThemedText>
-							</Button.LabelContent>
-							<Button.EndContent>
-								<Ionicons
-									name='chevron-forward'
-									size={18}
-									color={'#fff'}
-								/>
-							</Button.EndContent>
-						</Button>
-					</View>
-          		*/}
-				</KeyboardAwareScrollView>
-			</ThemedSafeAreaView>
+					/>
+				</TextField>
+				<ThemedGradientButton
+					pressableStyle={{ width: '100%' }}
+					viewStyle={{
+						height: 50,
+						alignItems: 'center',
+						justifyContent: 'center',
+						borderRadius: theme.borderRadii.screen,
+					}}
+					onPress={analyze}
+				>
+					<ThemedText size='sm' type='button'>
+						Analyze
+					</ThemedText>
+				</ThemedGradientButton>
+			</KeyboardAwareScrollView>
+			<InvalidInputModal ref={invalidInputModalRef} />
+			<ProcessingModal ref={processingModalRef} />
 		</>
 	);
 }
@@ -193,4 +162,118 @@ const styles = StyleSheet.create({
 		height: 18,
 		marginBottom: -1.5,
 	},
+});
+
+// Modals
+const ProcessingModal = forwardRef((props, ref) => {
+	const { theme } = useAppTheme();
+
+	const modalRef = useRef<any>(null);
+
+	useImperativeHandle(ref, () => ({
+		show: () => modalRef?.current?.show(),
+		hide: () => modalRef?.current?.hide(),
+	}));
+
+	return (
+		<ImperativeModal
+			ref={modalRef}
+			contentContainerStyle={{ gap: 0 }}
+			canDismiss={false}
+		>
+			<ThemedView
+				elevation='surface'
+				style={{
+					alignItems: 'center',
+					borderRadius: theme.borderRadii.sm,
+
+					width: '80%',
+
+					shadowColor: '#000',
+					shadowOffset: {
+						width: 0,
+						height: 0,
+					},
+					shadowOpacity: 0.1,
+					shadowRadius: 6,
+				}}
+				thinBorder
+			>
+				<ThemedView
+					style={{ padding: 20, alignItems: 'center', gap: 10 }}
+				>
+					<ThemedText type='title' size='lg'>
+						Processing...
+					</ThemedText>
+					<LottieView
+						autoPlay
+						loop
+						style={{ width: 50, height: 50 }}
+						source={require('../../assets/lotties/loading_gray.json')}
+					/>
+				</ThemedView>
+			</ThemedView>
+		</ImperativeModal>
+	);
+});
+
+const InvalidInputModal = forwardRef((props, ref) => {
+	const { theme } = useAppTheme();
+
+	const modalRef = useRef<any>(null);
+
+	useImperativeHandle(ref, () => ({
+		show: () => modalRef?.current?.show(),
+		hide: () => modalRef?.current?.hide(),
+	}));
+
+	return (
+		<ImperativeModal ref={modalRef} contentContainerStyle={{ gap: 0 }}>
+			<ThemedView
+				elevation='surface'
+				style={{
+					alignItems: 'center',
+					borderRadius: theme.borderRadii.sm,
+
+					width: '80%',
+
+					shadowColor: '#000',
+					shadowOffset: {
+						width: 0,
+						height: 0,
+					},
+					shadowOpacity: 0.1,
+					shadowRadius: 6,
+				}}
+				thinBorder
+			>
+				<ThemedView
+					style={{ padding: 20, alignItems: 'center', gap: 10 }}
+				>
+					<ThemedText type='title' size='lg'>
+						Fill the input!
+					</ThemedText>
+					<ThemedText type='body' size='sm'>
+						Please describe your symptoms before analyzing.
+					</ThemedText>
+				</ThemedView>
+				<ThemedButton
+					pressableStyle={{
+						marginTop: 10,
+						width: '100%',
+					}}
+					viewStyle={{
+						width: '100%',
+						alignItems: 'center',
+						borderColor: theme.colors.border,
+						borderTopWidth: StyleSheet.hairlineWidth,
+						padding: 16,
+					}}
+					onPress={() => modalRef?.current?.hide()}
+				>
+					<ThemedText type='button'>Got it!</ThemedText>
+				</ThemedButton>
+			</ThemedView>
+		</ImperativeModal>
+	);
 });

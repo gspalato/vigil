@@ -1,0 +1,16 @@
+asyncio
+dotenv
+google-genai
+grpcio==1.74.0
+grpcio-tools==1.74.0
+grpcio-reflection
+logging
+matplotlib
+numpy
+pandas
+plotly
+pyproj
+scikit-learn
+shapely
+statsmodels
+supabase

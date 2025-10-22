@@ -1,9 +1,9 @@
+import { Canvas, LinearGradient } from '@shopify/react-native-skia';
 import { set } from 'date-fns';
 import { View } from 'moti';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
-import { useAnimatedStyle } from 'react-native-reanimated';
 
 import { ThemedProps, useAppTheme } from '@lib/Theme';
 
@@ -11,6 +11,8 @@ type ButtonProps = {
 	pressableStyle?: StyleProp<ViewStyle>;
 	viewStyle?: StyleProp<ViewStyle>;
 	children: React.ReactNode;
+
+	hitSlop?: number;
 
 	onPress?: () => void;
 	onHold?: () => void;
@@ -20,11 +22,12 @@ export const ThemedButton: React.FC<ButtonProps> = ({
 	pressableStyle,
 	viewStyle,
 	children,
+	hitSlop = 20,
 	onPress,
 	onHold,
 	themeOverride,
 }) => {
-	const { theme } = useAppTheme(themeOverride);
+	const { theme, themeName } = useAppTheme(themeOverride);
 
 	const [isBeingPressed, setIsBeingPressed] = useState(false);
 
@@ -35,6 +38,7 @@ export const ThemedButton: React.FC<ButtonProps> = ({
 			onPressOut={() => setIsBeingPressed(false)}
 			onPress={onPress}
 			onLongPress={onHold}
+			hitSlop={hitSlop}
 		>
 			<View
 				style={[

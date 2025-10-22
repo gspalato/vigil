@@ -322,47 +322,14 @@
         "operationId": "GatewayApiSpec_get_/api/heatmap",
         "tags": [],
         "summary": "Get heatmap data points",
-        "parameters": [
-          {
-            "name": "timespan",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "enum": [
-                "DAY",
-                "HOUR",
-                "MONTH",
-                "WEEK"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "name": "similarity",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FetchHeatmapResponse"
+                  "$ref": "#/components/schemas/FetchLatestDataResponse"
                 }
               }
             }
@@ -601,6 +568,9 @@
         "description": "Represents a single symptom report from a user",
         "type": "object",
         "properties": {
+          "id": {
+            "type": "number"
+          },
           "userId": {
             "type": "string"
           },
@@ -615,30 +585,167 @@
             "type": "number"
           },
           "symptoms": {
-            "description": "Symptoms with per-symptom severity (1-3)",
             "type": "object",
             "additionalProperties": {
               "type": "number"
             }
           },
           "notes": {
-            "description": "Optional free-text notes",
             "type": "string"
           },
           "cause": {
-            "description": "Inferred most likely cause.",
             "type": "string"
+          },
+          "embedding": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^[0-9]+$": {
+                "type": "number"
+              }
+            },
+            "properties": {
+              "BYTES_PER_ELEMENT": {
+                "type": "number"
+              },
+              "buffer": {
+                "$ref": "#/components/schemas/ArrayBufferLike"
+              },
+              "byteLength": {
+                "type": "number"
+              },
+              "byteOffset": {
+                "type": "number"
+              },
+              "length": {
+                "type": "number"
+              },
+              "__@toStringTag@12148": {
+                "type": "string",
+                "enum": [
+                  "Uint8Array"
+                ]
+              }
+            },
+            "required": [
+              "BYTES_PER_ELEMENT",
+              "__@toStringTag@12148",
+              "buffer",
+              "byteLength",
+              "byteOffset",
+              "length"
+            ]
+          },
+          "clusterId": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "geom": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^[0-9]+$": {
+                "type": "number"
+              }
+            },
+            "properties": {
+              "BYTES_PER_ELEMENT": {
+                "type": "number"
+              },
+              "buffer": {
+                "$ref": "#/components/schemas/ArrayBufferLike"
+              },
+              "byteLength": {
+                "type": "number"
+              },
+              "byteOffset": {
+                "type": "number"
+              },
+              "length": {
+                "type": "number"
+              },
+              "__@toStringTag@12148": {
+                "type": "string",
+                "enum": [
+                  "Uint8Array"
+                ]
+              }
+            },
+            "required": [
+              "BYTES_PER_ELEMENT",
+              "__@toStringTag@12148",
+              "buffer",
+              "byteLength",
+              "byteOffset",
+              "length"
+            ]
           }
         },
         "additionalProperties": false,
         "required": [
           "cause",
+          "clusterId",
+          "embedding",
+          "geom",
+          "id",
           "lat",
           "lon",
           "notes",
+          "summary",
           "symptoms",
           "timestamp",
           "userId"
+        ]
+      },
+      "ArrayBufferLike": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/ArrayBuffer"
+          },
+          {
+            "$ref": "#/components/schemas/SharedArrayBuffer"
+          }
+        ]
+      },
+      "ArrayBuffer": {
+        "type": "object",
+        "properties": {
+          "byteLength": {
+            "type": "number"
+          },
+          "__@toStringTag@12148": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "__@toStringTag@12148",
+          "byteLength"
+        ]
+      },
+      "SharedArrayBuffer": {
+        "type": "object",
+        "properties": {
+          "byteLength": {
+            "type": "number"
+          },
+          "__@species@26694": {
+            "$ref": "#/components/schemas/SharedArrayBuffer"
+          },
+          "__@toStringTag@12148": {
+            "type": "string",
+            "enum": [
+              "SharedArrayBuffer"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "__@species@26694",
+          "__@toStringTag@12148",
+          "byteLength"
         ]
       },
       "InferSymptomsAndCauseResponse": {
@@ -667,24 +774,26 @@
           "symptoms"
         ]
       },
-      "FetchHeatmapResponse": {
+      "FetchLatestDataResponse": {
         "type": "object",
         "properties": {
-          "heatmapPoints": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/HeatmapPoint"
-            }
+          "timeWindowStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeWindowEnd": {
+            "type": "string",
+            "format": "date-time"
           },
           "geojson": {
-            "description": "GeoJSON representation of heatmap areas",
             "type": "string"
           }
         },
         "additionalProperties": false,
         "required": [
           "geojson",
-          "heatmapPoints"
+          "timeWindowEnd",
+          "timeWindowStart"
         ]
       }
     }

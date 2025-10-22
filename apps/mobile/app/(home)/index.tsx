@@ -9,6 +9,7 @@ import GeoJSON from 'geojson';
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MapView, {
+	Geojson,
 	Heatmap,
 	Polyline,
 	PROVIDER_GOOGLE,
@@ -35,9 +36,10 @@ export default function Page() {
 
 	const [alertCount, setAlertCount] = useState<number>(0);
 
-	const { heatmapPoints, fetchHeatmapData } = useApi();
+	const { geoJSON, fetchLatestGeoJSON } = useApi();
 	useEffect(() => {
-		fetchHeatmapData({ timespan: 'MONTH' });
+		fetchLatestGeoJSON();
+		//fetchHeatmapData({ timespan: 'MONTH' });
 	}, []);
 
 	useGoogleMapIosPerfFix();
@@ -86,6 +88,8 @@ export default function Page() {
 					onPanDrag={() => {}} // Fix for low framerate when interacting with the map on iOS.
 					key={'a'}
 				>
+					{geoJSON && <Geojson geojson={geoJSON as any} />}
+					{/*
 					<Heatmap
 						points={heatmapPoints.map((p) => ({
 							latitude: p.location.lat,
@@ -105,6 +109,7 @@ export default function Page() {
 						}}
 						opacity={0.9}
 					/>
+					*/}
 				</MapView>
 			</View>
 			<MaskedView

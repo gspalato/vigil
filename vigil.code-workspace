@@ -4,6 +4,10 @@
       "path": "."
     },
     {
+      "name": "docs",
+      "path": "docs"
+    },
+    {
       "name": "apps/mobile",
       "path": "apps/mobile"
     },
@@ -12,12 +16,12 @@
       "path": "apps/web"
     },
     {
-      "name": "services/analytics",
-      "path": "services/analytics"
+      "name": "services/ml",
+      "path": "services/ml"
     },
     {
-      "name": "services/digest",
-      "path": "services/digest"
+      "name": "services/analytics",
+      "path": "services/analytics"
     },
     {
       "name": "services/gateway",
@@ -26,6 +30,7 @@
   ],
   "settings": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "postman.settings.dotenv-detection-notification-visibility": false
   }
 }

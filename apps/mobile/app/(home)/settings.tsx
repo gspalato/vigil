@@ -49,7 +49,7 @@ export default function Page() {
 	const {
 		myReports,
 		fetchMyReports,
-		fetchHeatmapData,
+		fetchLatestGeoJSON,
 		triggerReadingAnalysis,
 	} = useApi();
 
@@ -132,7 +132,7 @@ export default function Page() {
 					),
 					label: 'Refresh heatmap',
 					onPress: () => {
-						fetchHeatmapData();
+						fetchLatestGeoJSON();
 					},
 					badge: 'DEBUG',
 					showChevron: false,

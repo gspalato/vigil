@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package vigil.ml;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+// A snapshot is a "slice" of a cluster at a specific point in time.
+message Snapshot {
+    string                    cluster_id        = 1; // Cluster UUID or temporary ID.
+    repeated double           centroid          = 2; // [lat, lon]
+    repeated double           avg_embedding     = 3; // 768D vector
+    repeated int64            report_ids        = 4; // List of report IDs
+    google.protobuf.Struct    common_symptoms   = 5; // JSON-like struct for aggregated symptoms
+    google.protobuf.Timestamp time_window_start = 6; // The start of the time window.
+    google.protobuf.Timestamp time_window_end   = 7; // The end of the time window.
+}

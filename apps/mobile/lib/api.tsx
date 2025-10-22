@@ -36,10 +36,7 @@ export type VigilAPIContextType = {
 	) => Promise<API.Reading | undefined>;
 
 	geoJSON: { [key: string]: any } | undefined;
-	heatmapPoints: HeatmapPoint[];
-	fetchHeatmapData: (params?: {
-		timespan?: FetchHeatmapPointsTimespan | `${FetchHeatmapPointsTimespan}`;
-	}) => Promise<void>;
+	fetchLatestGeoJSON: () => Promise<void>;
 
 	myReports: any[]; // TODO: Define report type
 	fetchMyReports: () => Promise<void>;
@@ -106,6 +103,30 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 	};
 
 	const [geoJSON, setGeoJSON] = useState<{ [key: string]: any }>();
+	const fetchLatestGeoJSON = async () => {
+		try {
+			const res = await API.gatewayApiSpecGetApiHeatmap({
+				client: gatewayClientOpenAPISDK,
+			});
+
+			if (res.error) {
+				throw new Error(
+					`Error fetching heatmap splines: ${res.error.message}`,
+				);
+			}
+
+			if (!res.data.geojson || res.data.geojson === '') {
+				console.warn('No geoJSON data received for heatmap');
+				return;
+			}
+
+			setGeoJSON(JSON.parse(res.data.geojson));
+		} catch (error) {
+			console.error('Failed to fetch heatmap points:', error);
+			return;
+		}
+	};
+	/*
 	const [heatmapPoints, setHeatmapPoints] = useState<HeatmapPoint[]>([]);
 	const fetchHeatmapData = async (params?: {
 		timespan?: FetchHeatmapPointsTimespan | `${FetchHeatmapPointsTimespan}`;
@@ -141,6 +162,7 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 			return;
 		}
 	};
+	*/
 
 	const [myReports, setMyReports] = useState<API.SymptomReport[]>([]);
 	const fetchMyReports = async () => {
@@ -215,8 +237,9 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 				triggerReadingAnalysis,
 
 				geoJSON,
-				heatmapPoints,
-				fetchHeatmapData,
+				fetchLatestGeoJSON,
+				//heatmapPoints,
+				//fetchHeatmapData,
 
 				myReports,
 				fetchMyReports,
