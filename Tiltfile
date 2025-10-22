@@ -81,7 +81,6 @@ helm_resource(
     chart='ngrok/ngrok-operator',
     namespace='ngrok-operator',
     labels=['ngrok'],
-    set=['crds.create=false']
 )
 
 k8s_yaml([
