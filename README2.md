@@ -2,7 +2,8 @@
 
 ## Overview
 
-Vigil is a comprehensive health monitoring system built with a microservices architecture. The system consists of a React Native mobile app and several backend services orchestrated with Kubernetes and managed via Tilt for development.
+Vigil is a comprehensive health monitoring system built with a microservices architecture.
+The system consists of a React Native mobile app and several backend services orchestrated with Kubernetes and managed via Tilt for development.
 
 ## Architecture
 
@@ -25,7 +26,7 @@ Vigil is a comprehensive health monitoring system built with a microservices arc
      ┌─────────────────┼──────────────────┐
      │                 │                  │
 ┌────▼──────┐    ┌─────▼──────┐    ┌──────▼─────┐
-│ Analytics │    │   Digest   │    │  Supabase  │
+│    ML     │    │   Digest   │    │  Supabase  │
 │  Service  │    │  Service   │    │ (Database) │
 └───────────┘    └────────────┘    └────────────┘
 ```
@@ -38,8 +39,8 @@ vigil/
 │   ├── mobile/          # React Native Expo app
 │   └── web/             # Empty Next.js placeholder
 ├── services/
-│   ├── gateway/         # Main API gateway (Express.js)
-│   ├── analytics/       # Analytics microservice
+│   ├── portal/          # Main API gateway (NestJS)
+│   ├── ml/              # Analytics microservice
 │   └── digest/          # Report digest service
 ├── infra/k8s/           # Kubernetes configurations
 └── Tiltfile             # Development orchestration
@@ -72,12 +73,12 @@ Main API gateway handling authentication, routing, and core business logic.
 
 #### API Endpoints
 
-- `POST /api/internal/readings` - Trigger a reading analysis jog.
+- `POST /v1/internal/readings` - Trigger a reading analysis jog.
 
-- `GET /api/reports` - Get user reports.
-- `POST /api/reports` - Create symptom report.
+- `GET /v1/reports` - Get user reports.
+- `POST /v1/reports` - Create symptom report.
 
-- `GET /api/heatmap` - Get the latest reading heatmap.
+- `GET /v1/heatmap` - Get the latest reading heatmap.
 
 #### Environment variables
 

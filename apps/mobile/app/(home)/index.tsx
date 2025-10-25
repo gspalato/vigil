@@ -31,7 +31,6 @@ import {
 } from '@lib/utils';
 
 export default function Page() {
-	const { user } = useUser();
 	const { themeName } = useAppTheme();
 
 	const [alertCount, setAlertCount] = useState<number>(0);
@@ -88,7 +87,14 @@ export default function Page() {
 					onPanDrag={() => {}} // Fix for low framerate when interacting with the map on iOS.
 					key={'a'}
 				>
-					{geoJSON && <Geojson geojson={geoJSON as any} />}
+					{geoJSON && (
+						<Geojson
+							geojson={geoJSON as any}
+							strokeColor='#002299'
+							fillColor='#00229933'
+							strokeWidth={2}
+						/>
+					)}
 					{/*
 					<Heatmap
 						points={heatmapPoints.map((p) => ({

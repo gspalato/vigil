@@ -6,7 +6,7 @@ SERVICES_DIR=./services
 
 # All projects that need protobuf generation
 PROTO_PY_PROJECTS=analytics ml
-PROTO_TS_PROJECTS=digest gateway
+PROTO_TS_PROJECTS=gateway portal
 
 # All projects that need openapi generation
 OPENAPI_SERVER_TS_PROJECTS=services/gateway

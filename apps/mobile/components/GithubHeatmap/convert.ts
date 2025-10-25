@@ -39,7 +39,5 @@ export const generateContributionFromReports = ({
 		}
 	});
 
-	console.log('Generated contribution data:', data);
-
 	return data;
 };

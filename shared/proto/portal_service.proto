@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package vigil.ml;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+import "location.proto";
+import "symptom_report.proto";
+
+message GetAllUserReportsRequest {}
+
+message GetAllUserReportsResponse {
+    repeated SymptomReport reports = 1;
+}
+
+
+message RegisterUserReportRequest {
+    string text       = 1;
+    Location location = 2;
+}
+message RegisterUserReportResponse {
+    SymptomReport report = 1;
+}
+
+message GetHeatmapRequest {}
+
+// MLService.FetchLatestDataResponse
+message GetHeatmapResponse {
+    google.protobuf.Timestamp time_window_start = 1;
+    google.protobuf.Timestamp time_window_end   = 2;
+    string                    geojson           = 3;
+}

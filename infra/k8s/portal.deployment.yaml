@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portal-service
+  namespace: services
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: portal-service
+  template:
+    metadata:
+      labels:
+        app: portal-service
+    spec:
+      containers:
+        - name: portal-service
+          image: unreaalism/vigil-portal:latest
+          ports:
+            - containerPort: 3000
+
+          envFrom:
+            - secretRef:
+                name: portal-secrets
+          env:
+            - name: PORT
+              value: 3000
+
+            - name: ML_SERVICE_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: portal-configmap
+                  key: ML_SERVICE_ADDRESS
+          #- configMapRef:
+          #    name: gateway-config

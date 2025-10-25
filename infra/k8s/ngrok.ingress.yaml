@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: gateway-service
+  name: portal-service
   namespace: services
 spec:
   ingressClassName: ngrok
@@ -13,7 +13,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: gateway-service
+                name: portal-service
                 namespace: services
                 port:
                   number: 3000

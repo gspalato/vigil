@@ -25,17 +25,17 @@ from models.outbreakml.structures import TimedeltaSnapshot
 import models.outbreakml.visualize as visualize
 
 from generated.symptom_report_pb2 import SymptomReport
-from generated.ml_service_pb2 import AddSymptomReportRequest, AddSymptomReportResponse, FetchLatestDataRequest, FetchLatestDataResponse, GenerateSnapshotsRequest, ProcessClustersRequest, ProcessClustersResponse
+from generated.ml_service_pb2 import FetchLatestDataRequest, FetchLatestDataResponse, GenerateSnapshotsRequest, GenerateSymptomReportRequest, GenerateSymptomReportResponse, ProcessClustersRequest, ProcessClustersResponse
 from generated import ml_service_pb2, ml_service_pb2_grpc
 
 class MLServicer(ml_service_pb2_grpc.MLServiceServicer):
-    def AddSymptomReport(self,
-                         request: AddSymptomReportRequest,
+    def GenerateSymptomReport(self,
+                         request: GenerateSymptomReportRequest,
                          context: grpc.aio.ServicerContext):
         try:
             partial_symptom_report: SymptomReport = embeddings.infer_symptoms_and_cause(request.text)
         except Exception as e:
-            return AddSymptomReportRequest(
+            return GenerateSymptomReportRequest(
                 success = False,
                 error = "Failed to infer symptoms and cause.",
                 report = None
@@ -46,7 +46,7 @@ class MLServicer(ml_service_pb2_grpc.MLServiceServicer):
         try:
             embedding = embeddings.generate_embeddings(summary)
         except Exception as e:
-            return AddSymptomReportRequest(
+            return GenerateSymptomReportRequest(
                 success = False,
                 error = "Failed to generate embeddings.",
                 report = None
@@ -61,16 +61,7 @@ class MLServicer(ml_service_pb2_grpc.MLServiceServicer):
             embedding = embedding,
         )
         
-        try:
-            db.save_report(complete_symptom_report)
-        except Exception as e:
-            return AddSymptomReportRequest(
-                success = False,
-                error = "Failed to save report.",
-                report = None
-            )
-        
-        return AddSymptomReportResponse(
+        return GenerateSymptomReportResponse(
             success = True,
             error = None,
             report = complete_symptom_report
@@ -127,6 +118,8 @@ class MLServicer(ml_service_pb2_grpc.MLServiceServicer):
         try:
             # Fetch the latest TimedeltaSnapshots from the database
             timedelta_snapshots = db.fetch_latest_timedelta_snapshots()
+            print("Found timedelta snapshots:")
+            print(timedelta_snapshots)
             
             if not timedelta_snapshots:
                 return FetchLatestDataResponse(
@@ -158,6 +151,7 @@ class MLServicer(ml_service_pb2_grpc.MLServiceServicer):
             start_timestamp.FromDatetime(start_dt)
             end_timestamp.FromDatetime(end_dt)
             
+            print("Sending FetchLatestDataResponse...")
             return FetchLatestDataResponse(
                 time_window_start=start_timestamp,
                 time_window_end=end_timestamp,

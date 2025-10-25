@@ -35,7 +35,7 @@ export type VigilAPIContextType = {
 		timespan: API.ReadingTimespan,
 	) => Promise<API.Reading | undefined>;
 
-	geoJSON: { [key: string]: any } | undefined;
+	geoJSON: string | { [key: string]: any } | undefined;
 	fetchLatestGeoJSON: () => Promise<void>;
 
 	myReports: any[]; // TODO: Define report type
@@ -64,7 +64,6 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 	children,
 }) => {
 	const clerkAuth = useAuth();
-	const { user } = useUser();
 
 	const gatewayClientOpenAPISDK = createClient({
 		baseUrl: process.env.EXPO_PUBLIC_VIGIL_BACKEND_URL,
@@ -102,10 +101,10 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 		}
 	};
 
-	const [geoJSON, setGeoJSON] = useState<{ [key: string]: any }>();
+	const [geoJSON, setGeoJSON] = useState<VigilAPIContextType['geoJSON']>();
 	const fetchLatestGeoJSON = async () => {
 		try {
-			const res = await API.gatewayApiSpecGetApiHeatmap({
+			const res = await API.mapControllerGetHeatmapV1({
 				client: gatewayClientOpenAPISDK,
 			});
 
@@ -120,6 +119,8 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 				return;
 			}
 
+			console.log(res.data);
+			console.log('Fetched GeoJSON:', res.data.geojson);
 			setGeoJSON(JSON.parse(res.data.geojson));
 		} catch (error) {
 			console.error('Failed to fetch heatmap points:', error);
@@ -174,7 +175,7 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 				return;
 			}
 
-			const res = await API.gatewayApiSpecGetApiReports({
+			const res = await API.reportsControllerGetAllUserReportsV1({
 				client: gatewayClientOpenAPISDK,
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -194,13 +195,11 @@ export const VigilAPIProvider: React.FC<React.PropsWithChildren> = ({
 	};
 	const reportSymptoms = async (
 		text: string,
-	): Promise<
-		API.InferSymptomsAndCauseResponse | { success: false; message: string }
-	> => {
+	): Promise<{ success: false; message: string }> => {
 		try {
 			const token = await clerkAuth.getToken();
 			const location = await Location.getCurrentPositionAsync();
-			const res = await API.gatewayApiSpecPostApiReports({
+			const res = await API.reportsControllerRegisterUserReportV1({
 				body: {
 					text,
 					location: {

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: portal-configmap
+  namespace: services
+data:
+  ML_SERVICE_ADDRESS: ml-service.services.svc.cluster.local:50051

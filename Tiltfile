@@ -6,18 +6,13 @@ local_resource('protogen', 'make all', deps=['proto'], labels=['jobs'])
 
 # Build service images.
 
-docker_build(
-  "unreaalism/vigil-analytics",
-  "services/analytics",
-  build_args={'NO_CACHE':'1'},
-)
+#docker_build("unreaalism/vigil-analytics", "services/analytics",)
 
-docker_build(
-  "unreaalism/vigil-ml",
-  "services/ml"
-)
+docker_build("unreaalism/vigil-ml", "services/ml")
 
-docker_build("unreaalism/vigil-gateway", "services/gateway")
+#docker_build("unreaalism/vigil-gateway", "services/gateway")
+
+docker_build("unreaalism/vigil-portal", "services/portal")
 
 # Deploy service files.
 k8s_yaml([
@@ -25,22 +20,30 @@ k8s_yaml([
     'infra/k8s/jobs.namespace.yaml',
     'infra/k8s/services.namespace.yaml',
 
-    #'infra/k8s/analytics.deployment.yaml',
-    #'infra/k8s/analytics.service.yaml',
-    #'infra/k8s/analytics.secrets.yaml',
+    'infra/k8s/portal.deployment.yaml',
+    'infra/k8s/portal.service.yaml',
+    'infra/k8s/portal.secrets.yaml',
+    'infra/k8s/portal.configmap.yaml',
     
     'infra/k8s/ml.deployment.yaml',
     'infra/k8s/ml.service.yaml',
     'infra/k8s/ml.secrets.yaml',
 
-    'infra/k8s/gateway.deployment.yaml',
-    'infra/k8s/gateway.service.yaml',
-    'infra/k8s/gateway.secrets.yaml',
+    #'infra/k8s/gateway.deployment.yaml',
+    #'infra/k8s/gateway.service.yaml',
+    #'infra/k8s/gateway.secrets.yaml',
 ])
 
 # Connect gateway to container port 3000
+#k8s_resource(
+#  workload='gateway-service',
+#  port_forwards=3000,
+#  labels=['services']
+#)
+
+# Connect portal to container port 3000
 k8s_resource(
-  workload='gateway-service',
+  workload='portal-service',
   port_forwards=3000,
   labels=['services']
 )
@@ -81,6 +84,7 @@ helm_resource(
     chart='ngrok/ngrok-operator',
     namespace='ngrok-operator',
     labels=['ngrok'],
+    resource_deps=['portal-service']
 )
 
 k8s_yaml([

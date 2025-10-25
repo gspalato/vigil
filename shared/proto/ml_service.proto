@@ -14,20 +14,20 @@ import "symptom_report.proto";
 /* Service and requests */
 
 service MLService {
-    rpc AddSymptomReport(AddSymptomReportRequest) returns (AddSymptomReportResponse);
+    rpc GenerateSymptomReport(GenerateSymptomReportRequest) returns (GenerateSymptomReportResponse);
     rpc FetchLatestData(FetchLatestDataRequest) returns (FetchLatestDataResponse);
     rpc ProcessClusters(ProcessClustersRequest) returns (ProcessClustersResponse);
     rpc PredictEvolution(PredictEvolutionRequest) returns (PredictEvolutionResponse);
 }
 
 
-message AddSymptomReportRequest {
+message GenerateSymptomReportRequest {
     string text = 1;
     float  lat  = 2;
     float  lon  = 3;
 }
 
-message AddSymptomReportResponse {
+message GenerateSymptomReportResponse {
     bool          success = 1;
     string        error   = 2;
     SymptomReport report  = 3;
