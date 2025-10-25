@@ -12,21 +12,13 @@
       "path": "apps/mobile"
     },
     {
-      "name": "apps/web",
-      "path": "apps/web"
-    },
-    {
       "name": "services/ml",
       "path": "services/ml"
     },
     {
-      "name": "services/analytics",
-      "path": "services/analytics"
+      "name": "services/portal",
+      "path": "services/portal"
     },
-    {
-      "name": "services/gateway",
-      "path": "services/gateway"
-    }
   ],
   "settings": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
